@@ -1,0 +1,539 @@
+<title>What Should We Watch?</title>
+<meta name="description" content="Answer five quick questions and get three well-loved picks, with trailers and where to watch.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap">
+<style>
+:root{
+  --bg:#F4F2F8; --surface:#FFFFFF; --surface-2:#ECE8F4; --ink:#1D1A2B; --muted:#595370;
+  --line:#D8D2E6; --accent:#5A3FA0; --accent-soft:#E6DEF7; --accent-ink:#FFFFFF;
+  --gold:#9A5A06; --gold-soft:#FBEBD3; --tomato:#C23A27; --good:#23724A; --good-soft:#DDF1E5;
+  --bad:#A8372F; --bad-soft:#F7E0DE; --shadow:0 1px 2px rgba(29,26,43,.06),0 8px 24px rgba(29,26,43,.07);
+  --display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14121C; --surface:#1F1C2B; --surface-2:#2A2639; --ink:#F2EFF9; --muted:#B1AAC8;
+    --line:#3A3550; --accent:#B9A2F5; --accent-soft:#322A4D; --accent-ink:#1A1430;
+    --gold:#F2B75F; --gold-soft:#3A2C17; --tomato:#FF8A73; --good:#7ED3A0; --good-soft:#1E3529;
+    --bad:#FF9C91; --bad-soft:#3E2220; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14121C; --surface:#1F1C2B; --surface-2:#2A2639; --ink:#F2EFF9; --muted:#B1AAC8;
+  --line:#3A3550; --accent:#B9A2F5; --accent-soft:#322A4D; --accent-ink:#1A1430;
+  --gold:#F2B75F; --gold-soft:#3A2C17; --tomato:#FF8A73; --good:#7ED3A0; --good-soft:#1E3529;
+  --bad:#FF9C91; --bad-soft:#3E2220; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:19px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,a{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:10px}
+.wrap{padding-inline:16px;padding-block:0 48px;max-width:760px;margin:0 auto}
+.wrap.wide{max-width:1220px}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px 10px;flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:800;font-size:1.15rem;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;background:none;border:0;padding:0}
+.brand .screen{width:30px;height:22px;border-radius:6px;background:var(--accent);position:relative;flex:none}
+.brand .screen::after{content:"";position:absolute;left:50%;bottom:-6px;width:12px;height:3px;border-radius:2px;background:var(--accent);transform:translateX(-50%)}
+.brand .screen::before{content:"?";position:absolute;inset:0;display:grid;place-items:center;color:var(--accent-ink);font-size:.8rem;font-weight:800}
+.top-actions{display:flex;gap:8px}
+.ghost{background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:8px 16px;font-size:.9rem;font-weight:700}
+.ghost:hover{border-color:var(--accent)}
+
+/* progress */
+.progress{display:flex;gap:6px;margin-block:10px 6px}
+.progress span{height:6px;flex:1;border-radius:3px;background:var(--line)}
+.progress span.on{background:var(--accent)}
+.step-label{font-size:.85rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;font-weight:700}
+
+/* question */
+h1{font-family:var(--display);font-weight:800;font-size:clamp(2rem,6vw,3rem);line-height:1.05;letter-spacing:-.02em;margin:.35em 0 .2em;text-wrap:balance}
+.hint{color:var(--muted);margin:0 0 22px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:16px 16px 14px;min-height:92px;transition:border-color .15s,background .15s,transform .1s}
+.tile:hover{border-color:var(--accent)}
+.tile:active{transform:scale(.98)}
+.tile b{font-size:1.1rem;font-family:var(--display);font-weight:700}
+.tile small{font-size:.9rem;color:var(--muted);line-height:1.3}
+.tile[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tile[aria-pressed="true"] small{color:var(--accent-ink);opacity:.85}
+.group-label{font-weight:700;font-size:.85rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:22px 0 10px}
+.group-label:first-of-type{margin-top:0}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:10px 18px;font-weight:700;font-size:1rem}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:28px;flex-wrap:wrap}
+.btn{border:0;border-radius:999px;padding:14px 26px;font-weight:700;font-size:1.05rem;background:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.secondary{background:var(--surface-2);color:var(--ink)}
+.linkish{background:none;border:0;padding:8px 4px;color:var(--muted);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+
+/* results */
+.results-head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px 20px;margin-top:8px}
+.results-head h1{margin-bottom:0}
+.answers{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px}
+.answer{background:var(--surface-2);border:0;border-radius:999px;padding:7px 14px;font-size:.9rem}
+.answer b{font-weight:700}
+.answer::after{content:" ✎";opacity:.6}
+.answer:hover{background:var(--accent-soft)}
+.banner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;background:var(--accent-soft);border-radius:14px;padding:14px 18px;margin:16px 0 4px;font-size:.98rem}
+.banner .btn{padding:10px 18px;font-size:.95rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:18px;margin-top:20px;align-items:start}
+.card{background:var(--surface);border-radius:20px;box-shadow:var(--shadow);padding:22px 22px 18px;display:flex;flex-direction:column;gap:14px;transition:opacity .28s,transform .28s}
+.card.out{opacity:0;transform:translateY(8px) scale(.98)}
+.meta{font-size:.85rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:0}
+.card h2{font-family:var(--display);font-weight:800;font-size:1.7rem;line-height:1.08;letter-spacing:-.015em;margin:4px 0 0;text-wrap:balance}
+.fit{margin:0;font-weight:700;color:var(--accent)}
+.why{margin:0}
+.badges{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 12px;font-size:.88rem;font-weight:700;font-variant-numeric:tabular-nums}
+.badge.rt{background:var(--surface-2)}
+.badge.rt i{width:12px;height:12px;border-radius:50%;background:var(--tomato);display:inline-block}
+.badge.award{background:var(--gold-soft);color:var(--gold)}
+.badge.warn{background:var(--surface-2);color:var(--muted)}
+.trailer{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--ink);color:var(--bg);border-radius:12px;padding:12px 16px;text-decoration:none;font-weight:700}
+.trailer::before{content:"";border-left:12px solid currentColor;border-top:7px solid transparent;border-bottom:7px solid transparent}
+.trailer:hover{opacity:.88}
+.where{border-top:1.5px solid var(--line);padding-top:12px}
+.where h3{font-size:.85rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.where-row{display:grid;grid-template-columns:98px 1fr;gap:8px;align-items:start;margin-bottom:8px;font-size:.92rem}
+.where-row>span{color:var(--muted);padding-top:4px}
+.svcs{display:flex;flex-wrap:wrap;gap:6px}
+.svc{display:inline-block;border:1.5px solid var(--line);border-radius:8px;padding:3px 10px;text-decoration:none;font-weight:700;font-size:.9rem}
+.svc:hover{border-color:var(--accent)}
+.svc.yours{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.svc.yours::before{content:"✓ "}
+.where-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:.82rem;color:var(--muted);margin-top:4px}
+.where-foot a{color:var(--muted)}
+.verdict{border-top:1.5px solid var(--line);padding-top:12px}
+.verdict p{margin:0 0 8px;font-size:.9rem;color:var(--muted);font-weight:700}
+.vbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vbtn{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 8px;font-weight:700;font-size:.95rem}
+.vbtn.up:hover{background:var(--good-soft);border-color:var(--good)}
+.vbtn.down:hover{background:var(--bad-soft);border-color:var(--bad)}
+.skip{grid-column:1/-1;background:none;border:0;color:var(--muted);font-size:.9rem;padding:6px;text-decoration:underline;text-underline-offset:3px}
+.more-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:26px}
+.empty{background:var(--surface);border-radius:20px;padding:24px;box-shadow:var(--shadow)}
+.foot{margin-top:40px;font-size:.85rem;color:var(--muted);text-align:center;text-wrap:balance}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:700;font-size:.95rem;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;max-width:calc(100% - 32px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* services sheet */
+.sheet-bg{position:fixed;inset:0;background:rgba(10,8,20,.5);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+.sheet{background:var(--bg);width:100%;max-width:640px;max-height:92%;overflow:auto;border-radius:22px 22px 0 0;padding:22px 16px calc(22px + env(safe-area-inset-bottom,0px))}
+@media (min-width:700px){.sheet-bg{align-items:center}.sheet{border-radius:22px;padding:28px}}
+.sheet h2{font-family:var(--display);font-weight:800;font-size:1.8rem;margin:0 0 4px;letter-spacing:-.01em}
+.sheet .tiles{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+.sheet .tile{min-height:0;padding:12px 14px}
+.sheet-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-top:22px}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div id="app" class="wrap"><p style="padding-top:40px">Loading picks…</p></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   WORDING — edit anything in QUESTIONS to change the copy.
+   `v` values are what the catalog is tagged with; change the
+   labels (l) and descriptions (d) freely.
+   ============================================================ */
+const QUESTIONS = [
+  { id:'vibe', q:"What's your vibe right now?", hint:'Pick one.', type:'one', options:[
+    {v:'tired', l:'Tired', d:'Running on empty'},
+    {v:'stressed', l:'Stressed', d:'Need to unwind'},
+    {v:'curious', l:'Curious', d:'Brain is switched on'},
+    {v:'neutral', l:'Just OK', d:'No strong mood'},
+    {v:'excited', l:'Excited', d:'Ready for a thrill'},
+    {v:'happy', l:'Happy', d:'Keep the good mood going'},
+    {v:'adventurous', l:'Adventurous', d:'Take me somewhere'},
+    {v:'silly', l:'Silly', d:'I want to laugh'} ]},
+  { id:'feel', q:'How do you want to feel?', hint:'Pick up to two.', type:'multi', max:2, options:[
+    {v:'inspired', l:'Inspired', d:'Lifted up'},
+    {v:'romantic', l:'Romantic', d:'Swept away'},
+    {v:'entertained', l:'Entertained', d:'Just have fun'},
+    {v:'thoughtful', l:'Thoughtful', d:'Something to chew on'},
+    {v:'smart', l:'Smarter', d:'Learn something'},
+    {v:'relaxed', l:'Relaxed', d:'Calm and cozy'} ]},
+  { id:'sound', q:'What sounds good?', hint:'Pick as many as you like, or skip for a surprise.', type:'groups', groups:[
+    {key:'kind', label:'Kind of story', options:[
+      {v:'action', l:'Action & adventure'}, {v:'comedy', l:'Comedy'}, {v:'scifi', l:'Sci-fi'},
+      {v:'mystery', l:'Mystery'}, {v:'drama', l:'Drama'}, {v:'doc', l:'Documentary'} ]},
+    {key:'era', label:"When it's set", options:[
+      {v:'modern', l:'Modern day'}, {v:'1900s', l:'The 1900s'}, {v:'1800s', l:'1800s & earlier'}, {v:'future', l:'The future'} ]},
+    {key:'lead', label:'Whose story', options:[
+      {v:'women', l:'Women-led'}, {v:'men', l:'Men-led'} ]} ]},
+  { id:'time', q:'How much time do you have?', hint:'This decides between shows and movies.', type:'one', options:[
+    {v:'30', l:'About 30 minutes', d:'A sitcom episode'},
+    {v:'60', l:'About an hour', d:'A drama episode'},
+    {v:'movie', l:'Time for a movie', d:'1½ to 3 hours'},
+    {v:'all', l:'All night', d:'A movie, or start a series'} ]},
+  { id:'attn', q:'How much attention can you give?', hint:'Be honest. Phones count!', type:'one', options:[
+    {v:'low', l:'Half-watching', d:'Easy to follow, no subtitles'},
+    {v:'normal', l:'Normal', d:'Happy to follow along'},
+    {v:'high', l:'All in', d:'Twisty plots and subtitles welcome'} ]}
+];
+
+const VIBE_PHRASE = { tired:"good for a tired night", stressed:"a good way to unwind", curious:"feeds a curious mind",
+  neutral:"", excited:"brings the thrills", happy:"keeps the good mood going", adventurous:"takes you somewhere", silly:"brings the laughs" };
+const FEEL_WORD = { inspired:'inspired', romantic:'romantic', entertained:'entertained', thoughtful:'thoughtful', smart:'smarter', relaxed:'relaxed' };
+
+const MAIN_SERVICES = ['Netflix','Max','Prime Video','Disney+','Hulu','Apple TV','Peacock','Paramount+'];
+const MORE_SERVICES = ['BritBox','PBS','Acorn TV','MGM+','AMC+','Starz'];
+const LIBRARY = ['Kanopy (library card)','Hoopla (library card)'];
+
+/* ---------- storage (per device, optional) ---------- */
+const KEY = 'wtw.v1';
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return {}; } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){} }
+const store = Object.assign({ seen:{}, prefs:{}, services:null, library:false, answers:null }, load());
+
+/* ---------- state ---------- */
+let CATALOG = [], CATALOG_DATE = '';
+let step = 0, returnToResults = false;
+let answers = store.answers || { vibe:null, feel:[], sound:{kind:[],era:[],lead:[]}, time:null, attn:null };
+let shown = [], passed = new Set(), jitter = new Map();
+const app = document.getElementById('app');
+
+/* ---------- helpers ---------- */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtMin = m => m >= 60 ? `${Math.floor(m/60)}h${m%60 ? ' '+(m%60)+'m' : ''}` : `${m} min`;
+const jwLink = t => 'https://www.justwatch.com/us/search?q=' + encodeURIComponent(t.t);
+const trailerLink = t => 'https://www.youtube.com/results?search_query=' + encodeURIComponent(`${t.t} ${t.y} official trailer`);
+const tagsOf = t => [...t.kind.map(k=>'kind:'+k), 'era:'+t.era, 'lead:'+t.lead, ...t.feel.map(f=>'feel:'+f), 'type:'+t.type];
+function optLabel(qid, v){ const q = QUESTIONS.find(x=>x.id===qid); const o = q.options.find(o=>o.v===v); return o ? o.l : v; }
+function soundLabel(key, v){ const g = QUESTIONS[2].groups.find(g=>g.key===key); const o = g.options.find(o=>o.v===v); return o ? o.l : v; }
+const shortDate = () => new Date(CATALOG_DATE+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+function toast(msg){ const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(()=>el.classList.remove('show'), 2600); }
+
+/* ---------- engine ---------- */
+function fitsTime(t){
+  switch(answers.time){
+    case '30': return t.type==='series' && t.min<=35;
+    case '60': return t.type==='series' && t.min<=65;
+    case 'movie': return t.type==='movie';
+    default: return true;
+  }
+}
+function fitsAttention(t, relaxed){
+  if (answers.attn==='low') return !t.subs && (relaxed || t.cx<3);
+  return true;
+}
+function availability(t){
+  const subs = t.s || [], free = t.f || [];
+  const publicFree = free.filter(f => !LIBRARY.includes(f));
+  const libFree = free.filter(f => LIBRARY.includes(f));
+  if (!store.services) return (subs.length || free.length) ? 1 : 0;
+  if (subs.some(s => store.services.includes(s))) return 2.5;
+  if (publicFree.length || (store.library && libFree.length)) return 1.5;
+  return 0;
+}
+function score(t){
+  let s = 0;
+  const feel = answers.feel || [];
+  if (feel.length){ const m = feel.filter(f=>t.feel.includes(f)).length; s += m ? m*3 : -3; }
+  if (answers.vibe && answers.vibe!=='neutral') s += t.vibe.includes(answers.vibe) ? 2 : -0.5;
+  const snd = answers.sound || {};
+  if (snd.kind && snd.kind.length){ const m = snd.kind.filter(k=>t.kind.includes(k)).length; s += m ? 2.5 + (m-1) : -5; }
+  if (snd.era && snd.era.length){ s += snd.era.includes(t.era) ? 2.5 : -5; }
+  if (snd.lead && snd.lead.length){ s += snd.lead.includes(t.lead) ? 1.5 : (t.lead==='ensemble' ? -0.3 : -1.2); }
+  // quality
+  s += t.rt==null ? 0.6 : Math.max(-2, Math.min(3, (t.rt-72)/9));
+  if (t.aw){ s += /Best Picture/.test(t.aw) ? 2 : /^Won|winner/i.test(t.aw) ? 1.2 : 0.5; }
+  // attention
+  if (answers.attn==='low'){ if (t.cf) s += 2; if (t.cx===2) s -= 1; }
+  else if (answers.attn==='normal'){ if (t.subs) s -= 1; if (t.cx===3) s -= 0.5; }
+  else if (answers.attn==='high'){ if (t.cx===3) s += 1; if (t.cx===1) s -= 0.3; }
+  if (answers.vibe==='tired' && t.cx===3) s -= 1.5;
+  if (answers.time==='60' && t.min>35) s += 1;
+  if (answers.time==='all' && t.type==='series' && (t.se||1)>=2) s += 0.3;
+  s += availability(t);
+  // learned preferences from thumbs
+  let learned = 0; for (const tag of tagsOf(t)) learned += store.prefs[tag] || 0;
+  s += Math.max(-5, Math.min(5, learned * 0.6));
+  if (!jitter.has(t.t)) jitter.set(t.t, Math.random()*1.4);
+  return s + jitter.get(t.t);
+}
+function candidates(exclude){
+  const ex = new Set(exclude);
+  const base = t => !store.seen[t.t] && !ex.has(t.t) && fitsTime(t);
+  let pool = CATALOG.filter(t => base(t) && !passed.has(t.t) && fitsAttention(t,false));
+  if (pool.length < 3) pool = CATALOG.filter(t => base(t) && fitsAttention(t,true));
+  return pool.map(t => ({t, s:score(t)})).sort((a,b)=>b.s-a.s);
+}
+function pickOne(ranked, chosen){
+  let best = null, bestS = -Infinity;
+  for (const r of ranked.slice(0, 25)){
+    let adj = r.s;
+    const wanted = answers.sound.kind || [];
+    for (const c of chosen){ adj -= 1.5 * r.t.kind.filter(k=>c.kind.includes(k) && !wanted.includes(k)).length; if (c.type!==r.t.type) adj += 0.3; }
+    if (adj > bestS){ bestS = adj; best = r.t; }
+  }
+  return best;
+}
+function suggestThree(){
+  const ranked = candidates([]);
+  const chosen = [];
+  while (chosen.length < 3){
+    const rest = ranked.filter(r => !chosen.includes(r.t));
+    if (!rest.length) break;
+    chosen.push(pickOne(rest, chosen));
+  }
+  shown = chosen;
+}
+function learn(t, delta){
+  for (const tag of tagsOf(t)) store.prefs[tag] = Math.max(-6, Math.min(6, (store.prefs[tag]||0) + delta));
+}
+
+/* ---------- rendering: questions ---------- */
+function isAnswered(q){
+  const a = answers[q.id];
+  if (q.type==='one') return !!a;
+  if (q.type==='multi') return a && a.length>0;
+  return true;
+}
+function renderQuestion(){
+  const q = QUESTIONS[step];
+  app.className = 'wrap';
+  let body = '';
+  if (q.type==='groups'){
+    body = q.groups.map(g => `<p class="group-label">${esc(g.label)}</p><div class="chips">${
+      g.options.map(o => `<button class="chip" data-g="${g.key}" data-v="${o.v}" aria-pressed="${answers.sound[g.key].includes(o.v)}">${esc(o.l)}</button>`).join('')
+    }</div>`).join('');
+  } else {
+    body = `<div class="tiles">${q.options.map(o => {
+      const on = q.type==='one' ? answers[q.id]===o.v : answers[q.id].includes(o.v);
+      return `<button class="tile" data-v="${o.v}" aria-pressed="${on}"><b>${esc(o.l)}</b>${o.d?`<small>${esc(o.d)}</small>`:''}</button>`;
+    }).join('')}</div>`;
+  }
+  const soundEmpty = q.type==='groups' && !Object.values(answers.sound).some(a=>a.length);
+  const nextLabel = returnToResults ? 'See my picks' : step===QUESTIONS.length-1 ? 'Show me what to watch' : (soundEmpty ? 'Surprise me' : 'Next');
+  app.innerHTML = `
+    ${header()}
+    <div class="progress" aria-hidden="true">${QUESTIONS.map((_,i)=>`<span class="${i<=step?'on':''}"></span>`).join('')}</div>
+    <div class="step-label">Question ${step+1} of ${QUESTIONS.length}</div>
+    <h1>${esc(q.q)}</h1>
+    <p class="hint">${esc(q.hint)}</p>
+    ${body}
+    <div class="nav">
+      ${step>0 && !returnToResults ? '<button class="btn secondary" id="back">Back</button>' : '<span></span>'}
+      <button class="btn" id="next" ${isAnswered(q)?'':'disabled'}>${nextLabel}</button>
+    </div>`;
+  wireHeader();
+  app.querySelectorAll('.tile').forEach(b => b.onclick = () => {
+    const v = b.dataset.v;
+    if (q.type==='one'){ answers[q.id] = v; renderQuestion(); setTimeout(advance, 180); return; }
+    const arr = answers[q.id], i = arr.indexOf(v);
+    if (i>=0) arr.splice(i,1); else { arr.push(v); if (arr.length > (q.max||99)) arr.shift(); }
+    renderQuestion();
+  });
+  app.querySelectorAll('.chip').forEach(b => b.onclick = () => {
+    const arr = answers.sound[b.dataset.g], v = b.dataset.v, i = arr.indexOf(v);
+    if (i>=0) arr.splice(i,1); else arr.push(v);
+    renderQuestion();
+  });
+  const back = document.getElementById('back'); if (back) back.onclick = () => { step--; renderQuestion(); };
+  document.getElementById('next').onclick = advance;
+}
+function advance(){
+  if (!isAnswered(QUESTIONS[step])) return;
+  if (returnToResults || step===QUESTIONS.length-1){ returnToResults = false; showResults(true); return; }
+  step++; renderQuestion(); window.scrollTo({top:0});
+}
+
+/* ---------- rendering: results ---------- */
+function header(){
+  return `<div class="top">
+    <button class="brand" id="home" aria-label="Start over"><span class="screen"></span>What should we watch?</button>
+    <div class="top-actions"><button class="ghost" id="svcBtn">My services</button></div>
+  </div>`;
+}
+function wireHeader(){
+  document.getElementById('home').onclick = startOver;
+  document.getElementById('svcBtn').onclick = openServices;
+}
+function startOver(){
+  answers = { vibe:null, feel:[], sound:{kind:[],era:[],lead:[]}, time:null, attn:null };
+  store.answers = null; save();
+  step = 0; returnToResults = false; passed = new Set(); jitter = new Map(); shown = [];
+  renderQuestion(); window.scrollTo({top:0});
+}
+function showResults(fresh){
+  if (fresh){ jitter = new Map(); passed = new Set(); suggestThree(); }
+  store.answers = answers; save();
+  renderResults(); window.scrollTo({top:0});
+}
+function answerChips(){
+  const out = [];
+  out.push([0, 'Vibe', optLabel('vibe', answers.vibe)]);
+  out.push([1, 'Feel', answers.feel.map(v=>optLabel('feel',v)).join(' + ')]);
+  const s = answers.sound, parts = [...s.kind.map(v=>soundLabel('kind',v)), ...s.era.map(v=>soundLabel('era',v)), ...s.lead.map(v=>soundLabel('lead',v))];
+  out.push([2, 'Sounds good', parts.length ? parts.join(', ') : 'Surprise me']);
+  out.push([3, 'Time', optLabel('time', answers.time)]);
+  out.push([4, 'Attention', optLabel('attn', answers.attn)]);
+  return out.map(([i,k,v]) => `<button class="answer" data-step="${i}">${k}: <b>${esc(v)}</b></button>`).join('');
+}
+function fitLine(t){
+  const feels = answers.feel.filter(f=>t.feel.includes(f)).map(f=>FEEL_WORD[f]);
+  const vibe = answers.vibe && t.vibe.includes(answers.vibe) ? VIBE_PHRASE[answers.vibe] : '';
+  let line = feels.length ? `To feel ${feels.join(' & ')}` : '';
+  if (vibe) line = line ? `${line}, and ${vibe}` : vibe.charAt(0).toUpperCase()+vibe.slice(1);
+  if (!line){
+    const k = (answers.sound.kind||[]).find(k=>t.kind.includes(k));
+    line = k ? `A great ${soundLabel('kind',k).toLowerCase()} pick` : 'A crowd favorite worth your time';
+  }
+  return line;
+}
+function svcChips(list, t){
+  return list.map(s => {
+    const yours = store.services && (store.services.includes(s) || (store.library && LIBRARY.includes(s)));
+    return `<a class="svc ${yours?'yours':''}" href="${jwLink(t)}" target="_blank" rel="noopener" title="Open watch links on JustWatch">${esc(s)}</a>`;
+  }).join('');
+}
+function cardHTML(t){
+  const meta = t.type==='movie'
+    ? `Movie · ${fmtMin(t.min)} · ${t.y}`
+    : `Series · ${t.se} season${t.se>1?'s':''} · ${t.min}-min episodes`;
+  const badges = [];
+  if (t.rt!=null) badges.push(`<span class="badge rt" title="Rotten Tomatoes critics score"><i></i>${t.rt}% Rotten Tomatoes</span>`);
+  if (t.aw) badges.push(`<span class="badge award">🏆 ${esc(t.aw)}</span>`);
+  if (t.subs) badges.push(`<span class="badge warn">Subtitles</span>`);
+  const rows = [];
+  if (t.s && t.s.length) rows.push(`<div class="where-row"><span>Included with</span><div class="svcs">${svcChips(t.s,t)}</div></div>`);
+  if (t.f && t.f.length) rows.push(`<div class="where-row"><span>Free</span><div class="svcs">${svcChips(t.f,t)}</div></div>`);
+  if (t.r) rows.push(`<div class="where-row"><span>Rent</span><div class="svcs"><a class="svc" href="${jwLink(t)}" target="_blank" rel="noopener">From $${t.r.toFixed(2)} (Apple, Amazon…)</a></div></div>`);
+  if (!rows.length) rows.push(`<div class="where-row"><span>Buy</span><div class="svcs"><a class="svc" href="${jwLink(t)}" target="_blank" rel="noopener">See options</a></div></div>`);
+  return `<article class="card" data-t="${esc(t.t)}">
+    <div>
+      <p class="meta">${meta}</p>
+      <h2>${esc(t.t)}</h2>
+    </div>
+    <p class="fit">${esc(fitLine(t))}</p>
+    <p class="why">${esc(t.why)}</p>
+    ${badges.length?`<div class="badges">${badges.join('')}</div>`:''}
+    <a class="trailer" href="${trailerLink(t)}" target="_blank" rel="noopener">Watch the trailer</a>
+    <section class="where">
+      <h3>Where to watch</h3>
+      ${rows.join('')}
+      <div class="where-foot"><span>As of ${esc(shortDate())} · US</span><a href="${jwLink(t)}" target="_blank" rel="noopener">Check latest on JustWatch ↗</a></div>
+    </section>
+    <div class="verdict">
+      <p>Already seen it?</p>
+      <div class="vbtns">
+        <button class="vbtn up" data-act="up">👍 Loved it</button>
+        <button class="vbtn down" data-act="down">👎 Not for me</button>
+        <button class="skip" data-act="skip">Haven't seen it, but not interested</button>
+      </div>
+    </div>
+  </article>`;
+}
+function renderResults(){
+  app.className = 'wrap wide';
+  const niceDate = new Date(CATALOG_DATE+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const banner = store.services ? '' : `<div class="banner"><span>Tell us which services you have and we'll put what you can already watch first.</span><button class="btn" id="svcBanner">Choose my services</button></div>`;
+  const cards = shown.length
+    ? `<div class="cards">${shown.map(cardHTML).join('')}</div>`
+    : `<div class="empty"><h2 style="margin-top:0">You've seen everything that fits!</h2><p>Try changing an answer above (a different amount of time opens up lots more), or clear your seen list under My services.</p></div>`;
+  app.innerHTML = `
+    ${header()}
+    <div class="results-head"><h1>Tonight's picks</h1></div>
+    <div class="answers">${answerChips()}</div>
+    ${banner}
+    ${cards}
+    <div class="more-row">
+      <button class="btn" id="more">Show me 3 more</button>
+      <button class="btn secondary" id="restart">Start over</button>
+    </div>
+    <p class="foot">Streaming availability checked ${esc(niceDate)} for the US. Deals change often, so tap "Check latest" to confirm. Scores are Rotten Tomatoes critics' ratings.</p>`;
+  wireHeader();
+  const sb = document.getElementById('svcBanner'); if (sb) sb.onclick = openServices;
+  document.getElementById('restart').onclick = startOver;
+  document.getElementById('more').onclick = () => {
+    shown.forEach(t => passed.add(t.t));
+    jitter = new Map();
+    suggestThree();
+    if (!shown.length){ passed = new Set(); suggestThree(); toast("That's all of them. Starting the list over."); }
+    renderResults();
+  };
+  app.querySelectorAll('.answer').forEach(b => b.onclick = () => { step = +b.dataset.step; returnToResults = true; renderQuestion(); window.scrollTo({top:0}); });
+  app.querySelectorAll('.card').forEach(card => {
+    card.querySelectorAll('[data-act]').forEach(btn => btn.onclick = () => verdict(card, btn.dataset.act));
+  });
+}
+function verdict(card, act){
+  const t = shown.find(x => x.t === card.dataset.t); if (!t) return;
+  store.seen[t.t] = act;
+  learn(t, act==='up' ? 1 : act==='down' ? -1 : -0.35);
+  save();
+  const others = shown.filter(x => x !== t);
+  const ranked = candidates(others.map(x=>x.t));
+  const next = pickOne(ranked, others);
+  toast(act==='up' ? `Noted! More like ${t.t} coming up.` : act==='down' ? 'Got it. Steering away from that.' : 'Skipped. Here’s another.');
+  card.classList.add('out');
+  setTimeout(() => {
+    const i = shown.indexOf(t);
+    if (next) shown[i] = next; else shown.splice(i,1);
+    renderResults();
+    if (next){
+      const el = app.querySelector(`.card[data-t="${CSS.escape(next.t)}"]`);
+      if (el){ el.classList.add('out'); requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.remove('out'))); }
+    }
+  }, 260);
+}
+
+/* ---------- services sheet ---------- */
+function openServices(){
+  const sel = new Set(store.services || []);
+  let lib = !!store.library;
+  const bg = document.createElement('div');
+  bg.className = 'sheet-bg';
+  const seenCount = Object.keys(store.seen).length;
+  const tile = (name) => `<button class="tile" data-s="${esc(name)}" aria-pressed="${sel.has(name)}"><b>${esc(name)}</b></button>`;
+  bg.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <h2 id="sheetTitle">Which do you have?</h2>
+    <p class="hint">Tap everything you pay for. Shows on your services move to the top. Free apps like Tubi and Pluto TV always count.</p>
+    <div class="tiles">${MAIN_SERVICES.map(tile).join('')}</div>
+    <p class="group-label" style="margin-top:20px">More</p>
+    <div class="tiles">${MORE_SERVICES.map(tile).join('')}
+      <button class="tile" id="libTile" aria-pressed="${lib}"><b>Library card</b><small>Kanopy &amp; Hoopla (free)</small></button></div>
+    <div class="sheet-foot">
+      ${seenCount ? `<button class="linkish" id="forget">Forget my ${seenCount} seen title${seenCount>1?'s':''}</button>` : '<span></span>'}
+      <button class="btn" id="saveSvc">Save</button>
+    </div></div>`;
+  document.body.appendChild(bg);
+  const close = () => bg.remove();
+  bg.onclick = e => { if (e.target === bg) close(); };
+  bg.querySelectorAll('[data-s]').forEach(b => b.onclick = () => {
+    const s = b.dataset.s; sel.has(s) ? sel.delete(s) : sel.add(s); b.setAttribute('aria-pressed', sel.has(s));
+  });
+  bg.querySelector('#libTile').onclick = e => { lib = !lib; e.currentTarget.setAttribute('aria-pressed', lib); };
+  const f = bg.querySelector('#forget');
+  if (f) f.onclick = () => { store.seen = {}; store.prefs = {}; save(); f.textContent = 'Cleared'; f.disabled = true; };
+  bg.querySelector('#saveSvc').onclick = () => {
+    store.services = [...sel]; store.library = lib; save(); close();
+    if (shown.length || isComplete()){ showResults(true); toast('Saved. Picks updated for your services.'); }
+    else toast('Saved.');
+  };
+  document.addEventListener('keydown', function esc_(e){ if (e.key==='Escape'){ close(); document.removeEventListener('keydown', esc_); } });
+  bg.querySelector('.tile').focus();
+}
+const isComplete = () => QUESTIONS.every(isAnswered);
+
+/* ---------- boot ---------- */
+fetch('catalog.json').then(r => r.json()).then(data => {
+  CATALOG = data.titles; CATALOG_DATE = data.catalogDate;
+  if (store.answers && isComplete()) showResults(true); else renderQuestion();
+}).catch(() => {
+  app.innerHTML = '<p style="padding-top:40px">Couldn’t load the title list. Please refresh the page.</p>';
+});
+</script>
