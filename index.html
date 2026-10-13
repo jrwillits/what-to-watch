@@ -1,5 +1,5 @@
-<title>What Should We Watch?</title>
-<meta name="description" content="Answer five quick questions and get three well-loved picks, with trailers and where to watch.">
+<title>What Should I Watch?</title>
+<meta name="description" content="Answer five quick questions about your mood and time, and get three well-loved picks with trailers and where to watch.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap">
@@ -7,7 +7,7 @@
 :root{
   --bg:#F4F2F8; --surface:#FFFFFF; --surface-2:#ECE8F4; --ink:#1D1A2B; --muted:#595370;
   --line:#D8D2E6; --accent:#5A3FA0; --accent-soft:#E6DEF7; --accent-ink:#FFFFFF;
-  --gold:#9A5A06; --gold-soft:#FBEBD3; --tomato:#C23A27; --good:#23724A; --good-soft:#DDF1E5;
+  --gold:#9A5A06; --gold-soft:#FBEBD3; --gold-ink:#FFFFFF; --tomato:#C23A27; --good:#23724A; --good-soft:#DDF1E5;
   --bad:#A8372F; --bad-soft:#F7E0DE; --shadow:0 1px 2px rgba(29,26,43,.06),0 8px 24px rgba(29,26,43,.07);
   --logo-bg:#F1EEF7; /* TV logos are often dark-on-transparent, so they always sit on a light panel */
   --display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
@@ -17,7 +17,7 @@
   :root:not([data-theme="light"]){
     --bg:#14121C; --surface:#1F1C2B; --surface-2:#2A2639; --ink:#F2EFF9; --muted:#B1AAC8;
     --line:#3A3550; --accent:#B9A2F5; --accent-soft:#322A4D; --accent-ink:#1A1430;
-    --gold:#F2B75F; --gold-soft:#3A2C17; --tomato:#FF8A73; --good:#7ED3A0; --good-soft:#1E3529;
+    --gold:#F2B75F; --gold-soft:#3A2C17; --gold-ink:#241707; --tomato:#FF8A73; --good:#7ED3A0; --good-soft:#1E3529;
     --bad:#FF9C91; --bad-soft:#3E2220; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
     color-scheme:dark;
   }
@@ -25,7 +25,7 @@
 :root[data-theme="dark"]{
   --bg:#14121C; --surface:#1F1C2B; --surface-2:#2A2639; --ink:#F2EFF9; --muted:#B1AAC8;
   --line:#3A3550; --accent:#B9A2F5; --accent-soft:#322A4D; --accent-ink:#1A1430;
-  --gold:#F2B75F; --gold-soft:#3A2C17; --tomato:#FF8A73; --good:#7ED3A0; --good-soft:#1E3529;
+  --gold:#F2B75F; --gold-soft:#3A2C17; --gold-ink:#241707; --tomato:#FF8A73; --good:#7ED3A0; --good-soft:#1E3529;
   --bad:#FF9C91; --bad-soft:#3E2220; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
   color-scheme:dark;
 }
@@ -47,7 +47,17 @@ button{cursor:pointer}
 .ghost{background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:8px 16px;font-size:.9rem;font-weight:700}
 .ghost:hover{border-color:var(--accent)}
 
-/* progress */
+/* progress + arrow navigation */
+.stepbar{display:flex;align-items:center;gap:12px;margin-block:10px 8px}
+.stepbar .progress{flex:1;margin:0}
+.arrow{flex:none;width:44px;height:44px;border-radius:50%;border:2px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;padding:0;transition:background .15s,border-color .15s,color .15s,transform .1s}
+.arrow svg{width:20px;height:20px}
+.arrow:hover:not(:disabled){border-color:var(--accent)}
+.arrow:active:not(:disabled){transform:scale(.94)}
+.arrow:disabled{opacity:.35;cursor:not-allowed}
+.arrow.go{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.arrow.pulse{animation:pulse .9s ease-out 1}
+@keyframes pulse{0%{box-shadow:0 0 0 0 var(--accent)}100%{box-shadow:0 0 0 12px transparent}}
 .progress{display:flex;gap:6px;margin-block:10px 6px}
 .progress span{height:6px;flex:1;border-radius:3px;background:var(--line)}
 .progress span.on{background:var(--accent)}
@@ -70,7 +80,10 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(2rem,6vw,3rem);lin
 .chip{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:10px 18px;font-weight:700;font-size:1rem}
 .chip:hover{border-color:var(--accent)}
 .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:28px;flex-wrap:wrap}
+.chip.surprise{border-style:dashed;border-color:var(--gold);color:var(--gold);background:var(--gold-soft);margin-right:10px}
+.chip.surprise::before{content:"✦ "}
+.chip.surprise:hover{border-color:var(--gold);border-style:solid}
+.chip.surprise[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);border-style:solid;color:var(--gold-ink)}
 .btn{border:0;border-radius:999px;padding:14px 26px;font-weight:700;font-size:1.05rem;background:var(--accent);color:var(--accent-ink)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn.secondary{background:var(--surface-2);color:var(--ink)}
@@ -150,6 +163,44 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(2rem,6vw,3rem);lin
 .sheet .tile{min-height:0;padding:12px 14px}
 .sheet-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-top:22px}
 
+/* group mode */
+.invite{margin-top:26px;color:var(--muted);font-size:.95rem}
+.invite .linkish{padding:0;color:var(--accent);font-size:inherit}
+.opt{text-transform:none;letter-spacing:0;font-weight:400}
+.names{display:grid;gap:12px;margin-bottom:26px;max-width:440px}
+.name-field{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted);font-weight:700}
+.name-field input{font:inherit;font-size:1.05rem;color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:12px 14px;width:100%}
+.name-field input:focus-visible{outline:none;border-color:var(--accent)}
+.btn.big{padding:18px 34px;font-size:1.15rem}
+.handoff{display:flex;flex-direction:column;align-items:center;text-align:center;padding-block:48px 24px}
+.handoff .pass{margin:14px 0 0;color:var(--muted);font-size:1.15rem}
+.handoff h1{font-size:clamp(2.6rem,11vw,4.2rem);margin:.05em 0 .25em;overflow-wrap:anywhere}
+.handoff .hint{max-width:34ch}
+.note{background:var(--gold-soft);color:var(--gold);border-radius:12px;padding:10px 14px;font-weight:700;font-size:.95rem;margin:4px 0 16px}
+.votes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.vrow{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:14px;display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px 14px}
+.vrow .poster{width:64px;border-radius:8px}
+.vrow .poster .ph{font-size:1.05rem}
+.vinfo h3{font-family:var(--display);font-weight:800;font-size:1.25rem;line-height:1.12;margin:2px 0 2px;text-wrap:balance}
+.vlen{margin:0 0 4px;font-weight:700;font-size:.92rem}
+.vwhy{margin:0 0 4px;font-size:.95rem}
+.vtrailer{font-size:.9rem;font-weight:700;color:var(--accent);text-underline-offset:3px}
+.vote{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr) auto;gap:8px}
+.vote-btn,.seen-btn{min-height:48px;border-radius:12px;border:2px solid var(--line);background:var(--surface);font-weight:700;font-size:.95rem;padding:6px 10px}
+.vote-btn:hover,.seen-btn:hover{border-color:var(--accent)}
+.vote-btn.up[aria-pressed="true"]{background:var(--good-soft);border-color:var(--good);color:var(--good);box-shadow:inset 0 0 0 2px var(--good)}
+.vote-btn.meh[aria-pressed="true"]{background:var(--surface-2);border-color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.vote-btn.down[aria-pressed="true"]{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);box-shadow:inset 0 0 0 2px var(--bad)}
+.seen-btn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
+@media (max-width:460px){.vote{grid-template-columns:repeat(3,1fr)}.seen-btn{grid-column:1/-1;min-height:40px}.vote-btn span{display:block;font-size:.8rem}}
+.votebar{position:sticky;bottom:0;margin-top:16px;margin-inline:-16px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1.5px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}
+#voteCount{font-weight:700;font-variant-numeric:tabular-nums}
+.gverdict{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.rank{margin:0;font-weight:800;font-family:var(--display);color:var(--accent);font-size:1.05rem}
+.happy-badge{background:var(--good-soft);color:var(--good);border-radius:999px;padding:4px 12px;font-weight:700;font-size:.88rem}
+.vlist{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.vlist li{background:var(--surface-2);border-radius:999px;padding:4px 12px;font-size:.9rem}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -166,19 +217,21 @@ const QUESTIONS = [
   { id:'vibe', q:"What's your vibe right now?", hint:'Pick one.', type:'one', options:[
     {v:'tired', l:'Tired', d:'Running on empty'},
     {v:'stressed', l:'Stressed', d:'Need to unwind'},
+    {v:'sad', l:'Sad', d:'Feeling low'},
     {v:'curious', l:'Curious', d:'Brain is switched on'},
     {v:'neutral', l:'Just OK', d:'No strong mood'},
-    {v:'excited', l:'Excited', d:'Ready for a thrill'},
     {v:'happy', l:'Happy', d:'Keep the good mood going'},
-    {v:'adventurous', l:'Adventurous', d:'Take me somewhere'},
     {v:'silly', l:'Silly', d:'I want to laugh'} ]},
-  { id:'feel', q:'How do you want to feel?', hint:'Pick up to two.', type:'multi', max:2, options:[
+  { id:'feel', q:'What do you want to feel?', hint:'Pick up to two.', type:'multi', max:2, options:[
     {v:'inspired', l:'Inspired', d:'Lifted up'},
     {v:'romantic', l:'Romantic', d:'Swept away'},
     {v:'entertained', l:'Entertained', d:'Just have fun'},
     {v:'thoughtful', l:'Thoughtful', d:'Something to chew on'},
     {v:'smart', l:'Smarter', d:'Learn something'},
-    {v:'relaxed', l:'Relaxed', d:'Calm and cozy'} ]},
+    {v:'relaxed', l:'Relaxed', d:'Calm and cozy'},
+    {v:'adrenaline', l:'Adrenaline Rush', d:'Heart racing'},
+    {v:'transported', l:'Transported', d:'Take me somewhere else'},
+    {v:'emotional', l:'Emotional', d:'A good cry'} ]},
   { id:'sound', q:'What sounds good?', hint:'Pick one or more in each row, or Surprise me.', type:'groups', groups:[
     {key:'kind', label:'Kind of story', options:[
       {v:'any', l:'Surprise me'},
@@ -199,8 +252,10 @@ const QUESTIONS = [
 ];
 
 const VIBE_PHRASE = { tired:"good for a tired night", stressed:"a good way to unwind", curious:"feeds a curious mind",
-  neutral:"", excited:"brings the thrills", happy:"keeps the good mood going", adventurous:"takes you somewhere", silly:"brings the laughs" };
-const FEEL_WORD = { inspired:'inspired', romantic:'romantic', entertained:'entertained', thoughtful:'thoughtful', smart:'smarter', relaxed:'relaxed' };
+  neutral:"", happy:"keeps the good mood going", silly:"brings the laughs",
+  sad:"a warm lift for a low day", sadEmotional:"a good cry when you need one" };
+const FEEL_WORD = { inspired:'inspired', romantic:'romantic', entertained:'entertained', thoughtful:'thoughtful', smart:'smarter',
+  relaxed:'relaxed', adrenaline:'your heart race', transported:'transported', emotional:'all the feels' };
 
 const MAIN_SERVICES = ['Netflix','Max','Prime Video','Disney+','Hulu','Apple TV','Peacock','Paramount+'];
 const MORE_SERVICES = ['BritBox','PBS','Acorn TV','MGM+','AMC+','Starz'];
@@ -214,7 +269,10 @@ const store = Object.assign({ seen:{}, prefs:{}, services:null, library:false, a
 
 /* ---------- state ---------- */
 let CATALOG = [], CATALOG_DATE = '';
-let step = 0, returnToResults = false;
+let step = 0, returnToResults = false, onResults = false, lastReady = false;
+let screen = 'question';          // 'question' | 'results' | 'group' — which screen is showing
+let mode = 'solo';                // 'solo' | 'group'
+let group = null;                 // the group session (see Multiviewer mode below)
 const blankAnswers = () => ({ vibe:null, feel:[], sound:{kind:[],era:[]}, time:null, attn:null });
 let answers = store.answers || blankAnswers();
 let shown = [], passed = new Set(), jitter = new Map();
@@ -233,17 +291,18 @@ function toast(msg){ const el = document.getElementById('toast'); el.textContent
 
 /* ---------- engine ---------- */
 // specific choices in a "sounds good" row; "Surprise me" (any) or nothing means no preference
-const picked = key => ((answers.sound||{})[key] || []).filter(v => v !== 'any');
-function fitsTime(t){
-  switch(answers.time){
+// Engine functions take an answers object (a); solo mode passes nothing and uses the global `answers`.
+const picked = (key, a = answers) => ((a.sound||{})[key] || []).filter(v => v !== 'any');
+function fitsTime(t, a = answers){
+  switch(a.time){
     case '30': return t.type==='series' && t.min<=35;
     case '60': return t.type==='series' && t.min<=65;
     case 'movie': return t.type==='movie';
     default: return true;
   }
 }
-function fitsAttention(t, relaxed){
-  if (answers.attn==='low') return !t.subs && (relaxed || t.cx<3);
+function fitsAttention(t, relaxed, a = answers){
+  if (a.attn==='low') return !t.subs && (relaxed || t.cx<3);
   return true;
 }
 function availability(t){
@@ -255,25 +314,36 @@ function availability(t){
   if (publicFree.length || (store.library && libFree.length)) return 1.5;
   return 0;
 }
-function score(t){
+// opts.personal=false skips this device's thumbs history and the random tie-breaker (used for group scoring)
+function score(t, a = answers, opts = { personal: true }){
   let s = 0;
-  const feel = answers.feel || [];
+  const feel = a.feel || [];
   if (feel.length){ const m = feel.filter(f=>t.feel.includes(f)).length; s += m ? m*3 : -3; }
-  if (answers.vibe && answers.vibe!=='neutral') s += t.vibe.includes(answers.vibe) ? 2 : -0.5;
-  const kinds = picked('kind'), eras = picked('era');
+  if (a.vibe && a.vibe!=='neutral') s += t.vibe.includes(a.vibe) ? 2 : -0.5;
+  const kinds = picked('kind', a), eras = picked('era', a);
   if (kinds.length){ const m = kinds.filter(k=>t.kind.includes(k)).length; s += m ? 2.5 + (m-1) : -5; }
   if (eras.length){ s += eras.includes(t.era) ? 2.5 : -5; }
   // quality
   s += t.rt==null ? 0.6 : Math.max(-2, Math.min(3, (t.rt-72)/9));
   if (t.aw){ s += /Best Picture/.test(t.aw) ? 2 : /^Won|winner/i.test(t.aw) ? 1.2 : 0.5; }
   // attention
-  if (answers.attn==='low'){ if (t.cf) s += 2; if (t.cx===2) s -= 1; }
-  else if (answers.attn==='normal'){ if (t.subs) s -= 1; if (t.cx===3) s -= 0.5; }
-  else if (answers.attn==='high'){ if (t.cx===3) s += 1; if (t.cx===1) s -= 0.3; }
-  if (answers.vibe==='tired' && t.cx===3) s -= 1.5;
-  if (answers.time==='60' && t.min>35) s += 1;
-  if (answers.time==='all' && t.type==='series' && (t.se||1)>=2) s += 0.3;
+  if (a.attn==='low'){ if (t.cf) s += 2; if (t.cx===2) s -= 1; }
+  else if (a.attn==='normal'){ if (t.subs) s -= 1; if (t.cx===3) s -= 0.5; }
+  else if (a.attn==='high'){ if (t.cx===3) s += 1; if (t.cx===1) s -= 0.3; }
+  if (a.vibe==='tired' && t.cx===3) s -= 1.5;
+  if (a.vibe==='sad'){
+    const moving = t.feel.includes('emotional');
+    if (feel.includes('emotional')){ if (moving) s += 1; }            // they want a good cry
+    else {                                                             // otherwise: comfort and lift
+      if (moving) s -= 3;
+      else if (t.cf && t.feel.some(f => f==='relaxed' || f==='entertained' || f==='inspired')) s += 2.5;
+      if (t.cx===3) s -= 1.5;
+    }
+  }
+  if (a.time==='60' && t.min>35) s += 1;
+  if (a.time==='all' && t.type==='series' && (t.se||1)>=2) s += 0.3;
   s += availability(t);
+  if (!opts.personal) return s;
   // learned preferences from thumbs
   let learned = 0; for (const tag of tagsOf(t)) learned += store.prefs[tag] || 0;
   s += Math.max(-5, Math.min(5, learned * 0.6));
@@ -287,11 +357,10 @@ function candidates(exclude){
   if (pool.length < 3) pool = CATALOG.filter(t => base(t) && fitsAttention(t,true));
   return pool.map(t => ({t, s:score(t)})).sort((a,b)=>b.s-a.s);
 }
-function pickOne(ranked, chosen){
+function pickOne(ranked, chosen, wanted = picked('kind')){
   let best = null, bestS = -Infinity;
   for (const r of ranked.slice(0, 25)){
     let adj = r.s;
-    const wanted = picked('kind');
     for (const c of chosen){ adj -= 1.5 * r.t.kind.filter(k=>c.kind.includes(k) && !wanted.includes(k)).length; if (c.type!==r.t.type) adj += 0.3; }
     if (adj > bestS){ bestS = adj; best = r.t; }
   }
@@ -312,11 +381,16 @@ function learn(t, delta){
 }
 
 /* ---------- rendering: questions ---------- */
+// answered = has a selection, and every saved value is still a current option (older versions saved others)
 function isAnswered(q){
   const a = answers[q.id];
-  if (q.type==='one') return !!a;
-  if (q.type==='multi') return a && a.length>0;
-  return q.groups.every(g => answers.sound && (answers.sound[g.key]||[]).length > 0);
+  const valid = (opts, v) => opts.some(o => o.v === v);
+  if (q.type==='one') return !!a && valid(q.options, a);
+  if (q.type==='multi') return Array.isArray(a) && a.length>0 && a.every(v => valid(q.options, v));
+  return q.groups.every(g => {
+    const sel = (answers.sound||{})[g.key] || [];
+    return sel.length > 0 && sel.every(v => valid(g.options, v));
+  });
 }
 function renderQuestion(){
   const q = QUESTIONS[step];
@@ -324,7 +398,7 @@ function renderQuestion(){
   let body = '';
   if (q.type==='groups'){
     body = q.groups.map(g => `<p class="group-label">${esc(g.label)}</p><div class="chips">${
-      g.options.map(o => `<button class="chip" data-g="${g.key}" data-v="${o.v}" aria-pressed="${answers.sound[g.key].includes(o.v)}">${esc(o.l)}</button>`).join('')
+      g.options.map(o => `<button class="chip${o.v==='any'?' surprise':''}" data-g="${g.key}" data-v="${o.v}" aria-pressed="${answers.sound[g.key].includes(o.v)}">${esc(o.l)}</button>`).join('')
     }</div>`).join('');
   } else {
     body = `<div class="tiles">${q.options.map(o => {
@@ -332,19 +406,27 @@ function renderQuestion(){
       return `<button class="tile" data-v="${o.v}" aria-pressed="${on}"><b>${esc(o.l)}</b>${o.d?`<small>${esc(o.d)}</small>`:''}</button>`;
     }).join('')}</div>`;
   }
-  const nextLabel = returnToResults ? 'See my picks' : step===QUESTIONS.length-1 ? 'Show me what to watch' : 'Next';
+  screen = 'question';
+  const ready = isAnswered(q);
+  const last = step===QUESTIONS.length-1;
+  const toResults = returnToResults || last;
+  const pulse = ready && !lastReady;     // nudge the → arrow the moment it unlocks
+  lastReady = ready;
+  const who = mode==='group' ? `${esc(group.people[group.person].name)} · ` : '';
+  const nextLabel = mode==='group' ? (last ? 'Finish my answers' : 'Next question') : (toResults ? 'See my picks' : 'Next question');
+  const groupInvite = mode==='solo' && step===0
+    ? `<p class="invite">Watching with others? <button class="linkish" id="groupLink">Try Group mode</button></p>` : '';
   app.innerHTML = `
     ${header()}
-    <div class="progress" aria-hidden="true">${QUESTIONS.map((_,i)=>`<span class="${i<=step?'on':''}"></span>`).join('')}</div>
-    <div class="step-label">Question ${step+1} of ${QUESTIONS.length}</div>
+    ${stepBar({ backDisabled: step===0, nextDisabled: !ready, nextLabel, pulse, progress: step })}
+    <div class="step-label">${who}Question ${step+1} of ${QUESTIONS.length}</div>
     <h1>${esc(q.q)}</h1>
     <p class="hint">${esc(q.hint)}</p>
     ${body}
-    <div class="nav">
-      ${step>0 && !returnToResults ? '<button class="btn secondary" id="back">Back</button>' : '<span></span>'}
-      <button class="btn" id="next" ${isAnswered(q)?'':'disabled'}>${nextLabel}</button>
-    </div>`;
+    ${groupInvite}`;
   wireHeader();
+  wireStepBar(goBack, advance);
+  const gl = document.getElementById('groupLink'); if (gl) gl.onclick = startGroup;
   app.querySelectorAll('.tile').forEach(b => b.onclick = () => {
     const v = b.dataset.v;
     if (q.type==='one'){ answers[q.id] = v; renderQuestion(); setTimeout(advance, 180); return; }
@@ -364,30 +446,65 @@ function renderQuestion(){
     answers.sound[g] = arr;
     renderQuestion();
   });
-  const back = document.getElementById('back'); if (back) back.onclick = () => { step--; renderQuestion(); };
-  document.getElementById('next').onclick = advance;
 }
 function advance(){
-  if (!isAnswered(QUESTIONS[step])) return;
+  if (screen!=='question' || !isAnswered(QUESTIONS[step])) return;
+  if (mode==='group' && step===QUESTIONS.length-1){ finishPersonAnswers(); return; }
   if (returnToResults || step===QUESTIONS.length-1){ returnToResults = false; showResults(true); return; }
-  step++; renderQuestion(); window.scrollTo({top:0});
+  step++; lastReady = isAnswered(QUESTIONS[step]); renderQuestion(); window.scrollTo({top:0});
 }
+function goBack(){
+  if (screen==='results'){ onResults = false; step = QUESTIONS.length-1; returnToResults = true; lastReady = true; renderQuestion(); window.scrollTo({top:0}); return; }
+  if (screen!=='question' || step===0) return;
+  returnToResults = false; step--; lastReady = true; renderQuestion(); window.scrollTo({top:0});
+}
+
+/* ---------- arrow bar ---------- */
+const ARROW_LEFT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+const ARROW_RIGHT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+function stepBar({ backDisabled, nextDisabled, nextLabel, pulse, progress }){
+  return `<div class="stepbar">
+    <button class="arrow" id="prevArrow" aria-label="${backDisabled ? 'Previous question' : onResults ? 'Back to the questions' : 'Previous question'}" ${backDisabled?'disabled':''}>${ARROW_LEFT}</button>
+    <div class="progress" aria-hidden="true">${QUESTIONS.map((_,i)=>`<span class="${i<=progress?'on':''}"></span>`).join('')}</div>
+    <button class="arrow ${nextDisabled?'':'go'} ${pulse?'pulse':''}" id="nextArrow" aria-label="${esc(nextLabel)}" ${nextDisabled?'disabled':''}>${ARROW_RIGHT}</button>
+  </div>`;
+}
+function wireStepBar(onPrev, onNext){
+  document.getElementById('prevArrow').onclick = onPrev;
+  document.getElementById('nextArrow').onclick = onNext;
+}
+document.addEventListener('keydown', e => {
+  if (document.querySelector('.sheet-bg') || e.altKey || e.ctrlKey || e.metaKey) return;
+  if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  if (e.key==='ArrowLeft') goBack();
+  else if (e.key==='ArrowRight') advance();
+});
 
 /* ---------- rendering: results ---------- */
 function header(){
+  const groupBtn = mode==='group'
+    ? '<button class="ghost" id="leaveGroup">Leave group</button>'
+    : '<button class="ghost" id="groupBtn">👥 Group</button>';
   return `<div class="top">
-    <button class="brand" id="home" aria-label="Start over"><span class="screen"></span>What should we watch?</button>
-    <div class="top-actions"><button class="ghost" id="svcBtn">My services</button></div>
+    <button class="brand" id="home" aria-label="${mode==='group' ? 'What should I watch? (group mode)' : 'Start over'}"><span class="screen"></span>What should I watch?</button>
+    <div class="top-actions">${groupBtn}<button class="ghost" id="svcBtn">My services</button></div>
   </div>`;
 }
 function wireHeader(){
-  document.getElementById('home').onclick = startOver;
+  document.getElementById('home').onclick = () => { if (mode==='solo') startOver(); };
   document.getElementById('svcBtn').onclick = openServices;
+  const gb = document.getElementById('groupBtn'); if (gb) gb.onclick = startGroup;
+  const lg = document.getElementById('leaveGroup');
+  if (lg) lg.onclick = () => {                      // two taps, since the app can't show a confirm dialog
+    if (lg.dataset.armed){ leaveGroup(); return; }
+    lg.dataset.armed = '1'; lg.textContent = 'Tap again to leave';
+    setTimeout(() => { if (lg.isConnected){ delete lg.dataset.armed; lg.textContent = 'Leave group'; } }, 3000);
+  };
 }
 function startOver(){
   answers = blankAnswers();
   store.answers = null; save();
-  step = 0; returnToResults = false; passed = new Set(); jitter = new Map(); shown = [];
+  step = 0; returnToResults = false; onResults = false; lastReady = false; passed = new Set(); jitter = new Map(); shown = [];
   renderQuestion(); window.scrollTo({top:0});
 }
 function showResults(fresh){
@@ -408,7 +525,8 @@ function answerChips(){
 }
 function fitLine(t){
   const feels = answers.feel.filter(f=>t.feel.includes(f)).map(f=>FEEL_WORD[f]);
-  const vibe = answers.vibe && t.vibe.includes(answers.vibe) ? VIBE_PHRASE[answers.vibe] : '';
+  let vibe = answers.vibe && t.vibe.includes(answers.vibe) ? VIBE_PHRASE[answers.vibe] : '';
+  if (answers.vibe==='sad') vibe = answers.feel.includes('emotional') ? VIBE_PHRASE.sadEmotional : VIBE_PHRASE.sad;
   let line = feels.length ? `To feel ${feels.join(' & ')}` : '';
   if (vibe) line = line ? `${line}, and ${vibe}` : vibe.charAt(0).toUpperCase()+vibe.slice(1);
   if (!line){
@@ -422,6 +540,14 @@ function svcChips(list, t){
     const yours = store.services && (store.services.includes(s) || (store.library && LIBRARY.includes(s)));
     return `<a class="svc ${yours?'yours':''}" href="${jwLink(t)}" target="_blank" rel="noopener" title="Open watch links on JustWatch">${esc(s)}</a>`;
   }).join('');
+}
+const lengthOf = t => t.type==='movie' ? fmtMin(t.min) : `${t.se} season${t.se>1?'s':''} · ${t.min}-min episodes`;
+// posters: fall back to the initials block when an image can't load (e.g. blocked in the artifact viewer)
+function wirePosters(){
+  app.querySelectorAll('.poster img').forEach(img => {
+    if (img.complete && !img.naturalWidth) img.remove();
+    else img.addEventListener('error', () => img.remove());
+  });
 }
 function initials(title){
   const words = title.replace(/[^A-Za-z0-9 ]/g,' ').split(/\s+/).filter(w => w && !/^(the|a|an|of|and|in|at|to|for)$/i.test(w));
@@ -438,11 +564,10 @@ function starsHTML(t){
     `<li><span class="who"><span class="star-name">${esc(p.n)}</span><span class="star-role">${esc(p.r)}</span></span><span class="badge award">🏆 ${esc(p.a)}</span></li>`
   ).join('')}</ul></section>`;
 }
-function cardHTML(t){
+// g (optional, group mode): { verdict: html } replaces the "why it fits" line and the solo thumbs buttons
+function cardHTML(t, g){
   const meta = t.type==='movie' ? `Movie · ${t.y}` : `Series · ${t.y}`;
-  const length = t.type==='movie'
-    ? fmtMin(t.min)
-    : `${t.se} season${t.se>1?'s':''} · ${t.min}-min episodes`;
+  const length = lengthOf(t);
   const badges = [];
   if (t.rt!=null) badges.push(`<span class="badge rt" title="Rotten Tomatoes critics score"><i></i>${t.rt}% Rotten Tomatoes</span>`);
   if (t.aw) badges.push(`<span class="badge award">🏆 ${esc(t.aw)}</span>`);
@@ -461,7 +586,7 @@ function cardHTML(t){
         <p class="length">${esc(length)}</p>
       </div>
     </div>
-    <p class="fit">${esc(fitLine(t))}</p>
+    ${g ? g.verdict : `<p class="fit">${esc(fitLine(t))}</p>`}
     <p class="why">${esc(t.why)}</p>
     ${badges.length?`<div class="badges">${badges.join('')}</div>`:''}
     ${starsHTML(t)}
@@ -471,25 +596,27 @@ function cardHTML(t){
       ${rows.join('')}
       <div class="where-foot"><span>As of ${esc(shortDate())} · US</span><a href="${jwLink(t)}" target="_blank" rel="noopener">Check latest on JustWatch ↗</a></div>
     </section>
-    <div class="verdict">
+    ${g ? '' : `<div class="verdict">
       <p>Already seen it?</p>
       <div class="vbtns">
         <button class="vbtn up" data-act="up">👍 Loved it</button>
         <button class="vbtn down" data-act="down">👎 Not for me</button>
         <button class="skip" data-act="skip">Haven't seen it, but not interested</button>
       </div>
-    </div>
+    </div>`}
   </article>`;
 }
 function renderResults(){
+  onResults = true; screen = 'results';
   app.className = 'wrap wide';
   const niceDate = new Date(CATALOG_DATE+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
   const banner = store.services ? '' : `<div class="banner"><span>Tell us which services you have and we'll put what you can already watch first.</span><button class="btn" id="svcBanner">Choose my services</button></div>`;
   const cards = shown.length
-    ? `<div class="cards">${shown.map(cardHTML).join('')}</div>`
+    ? `<div class="cards">${shown.map(t => cardHTML(t)).join('')}</div>`
     : `<div class="empty"><h2 style="margin-top:0">You've seen everything that fits!</h2><p>Try changing an answer above (a different amount of time opens up lots more), or clear your seen list under My services.</p></div>`;
   app.innerHTML = `
     ${header()}
+    ${stepBar({ backDisabled: false, nextDisabled: true, nextLabel: 'Next question', pulse: false, progress: QUESTIONS.length })}
     <div class="results-head"><h1>Tonight's picks</h1></div>
     <div class="answers">${answerChips()}</div>
     ${banner}
@@ -500,6 +627,7 @@ function renderResults(){
     </div>
     <p class="foot">Streaming availability checked ${esc(niceDate)} for the US. Deals change often, so tap "Check latest" to confirm. Scores are Rotten Tomatoes critics' ratings. Poster images via Wikipedia.</p>`;
   wireHeader();
+  wireStepBar(goBack, () => {});
   const sb = document.getElementById('svcBanner'); if (sb) sb.onclick = openServices;
   document.getElementById('restart').onclick = startOver;
   document.getElementById('more').onclick = () => {
@@ -509,15 +637,11 @@ function renderResults(){
     if (!shown.length){ passed = new Set(); suggestThree(); toast("That's all of them. Starting the list over."); }
     renderResults();
   };
-  app.querySelectorAll('.answer').forEach(b => b.onclick = () => { step = +b.dataset.step; returnToResults = true; renderQuestion(); window.scrollTo({top:0}); });
+  app.querySelectorAll('.answer').forEach(b => b.onclick = () => { onResults = false; step = +b.dataset.step; returnToResults = true; lastReady = true; renderQuestion(); window.scrollTo({top:0}); });
   app.querySelectorAll('.card').forEach(card => {
     card.querySelectorAll('[data-act]').forEach(btn => btn.onclick = () => verdict(card, btn.dataset.act));
   });
-  // posters: fall back to the initials block when an image can't load (e.g. blocked in the artifact viewer)
-  app.querySelectorAll('.poster img').forEach(img => {
-    if (img.complete && !img.naturalWidth) img.remove();
-    else img.addEventListener('error', () => img.remove());
-  });
+  wirePosters();
 }
 function verdict(card, act){
   const t = shown.find(x => x.t === card.dataset.t); if (!t) return;
@@ -570,7 +694,8 @@ function openServices(){
   if (f) f.onclick = () => { store.seen = {}; store.prefs = {}; save(); f.textContent = 'Cleared'; f.disabled = true; };
   bg.querySelector('#saveSvc').onclick = () => {
     store.services = [...sel]; store.library = lib; save(); close();
-    if (shown.length || isComplete()){ showResults(true); toast('Saved. Picks updated for your services.'); }
+    if (mode==='group'){ if (group.phase==='results') renderGroupResults(); toast('Saved.'); }
+    else if (shown.length || isComplete()){ showResults(true); toast('Saved. Picks updated for your services.'); }
     else toast('Saved.');
   };
   document.addEventListener('keydown', function esc_(e){ if (e.key==='Escape'){ close(); document.removeEventListener('keydown', esc_); } });
@@ -578,9 +703,242 @@ function openServices(){
 }
 const isComplete = () => QUESTIONS.every(isAnswered);
 
+/* ---------- Multiviewer (group) mode ----------
+   One phone passed around. All group state lives in one plain object saved under wtw.group:
+   { id, size, people:[{ name, answers, votes:{title:'up'|'meh'|'down'|'seen'} }], candidates:[titles],
+     past:[titles voted in earlier rounds], gscore:{title:number}, phase, person, round, note }
+   A later "join from your own phone" version only needs to sync this object. */
+const GROUP_KEY = 'wtw.group', GROUP_SIZE = 15, GROUP_TOP = 5;
+const VOTE_POINTS = { up: 2, meh: 0.5, down: -4, seen: 0 };     // a 👎 weighs heavily: nobody should be miserable
+const VOTE_LABEL = { up: '👍', meh: '😐', down: '👎', seen: '👀 seen it' };
+const TIME_ORDER = ['30','60','movie','all'], ATTN_ORDER = ['low','normal','high'];
+let draftNames = [];
+
+const findTitle = name => CATALOG.find(t => t.t === name);
+function saveGroup(){ try{ group ? localStorage.setItem(GROUP_KEY, JSON.stringify(group)) : localStorage.removeItem(GROUP_KEY); }catch(e){} }
+function loadGroup(){ try{ return JSON.parse(localStorage.getItem(GROUP_KEY)); }catch(e){ return null; } }
+
+function startGroup(){
+  mode = 'group'; onResults = false;
+  group = { id: Date.now().toString(36), size: Math.max(2, draftNames.filter(Boolean).length || 2), people: [], candidates: [], past: [], gscore: {},
+            phase: 'setup', person: 0, round: 1, note: '' };
+  saveGroup(); renderGroupSetup(); window.scrollTo({top:0});
+}
+function leaveGroup(){
+  group = null; saveGroup(); mode = 'solo'; draftNames = [];
+  answers = store.answers || blankAnswers();
+  step = 0; returnToResults = false; lastReady = false;
+  if (isComplete()) showResults(true); else { answers = blankAnswers(); renderQuestion(); }
+  window.scrollTo({top:0});
+}
+
+function renderGroupSetup(){
+  screen = 'group'; onResults = false;
+  app.className = 'wrap';
+  const n = group.size;
+  app.innerHTML = `
+    ${header()}
+    <p class="step-label">Group mode</p>
+    <h1>Who's watching?</h1>
+    <p class="hint">Pass the phone around. Everyone answers privately, then everyone votes on the same ${GROUP_SIZE} picks, and we'll show the ${GROUP_TOP} your group will be happiest with.</p>
+    <p class="group-label">How many people?</p>
+    <div class="chips">${[2,3,4].map(k => `<button class="chip" data-n="${k}" aria-pressed="${k===n}">${k} people</button>`).join('')}</div>
+    <p class="group-label" style="margin-top:22px">Names <span class="opt">(optional)</span></p>
+    <div class="names">${Array.from({length:n}, (_,i) => `<label class="name-field" for="gname${i}"><span>Viewer ${i+1}</span>
+      <input id="gname${i}" type="text" maxlength="20" autocomplete="off" placeholder="Viewer ${i+1}" value="${esc(draftNames[i]||'')}"></label>`).join('')}</div>
+    <button class="btn big" id="gstart">Start</button>`;
+  wireHeader();
+  const grab = () => { for (let i=0;i<n;i++){ const el = document.getElementById('gname'+i); if (el) draftNames[i] = el.value.slice(0,20); } };
+  app.querySelectorAll('[data-n]').forEach(b => b.onclick = () => { grab(); group.size = +b.dataset.n; saveGroup(); renderGroupSetup(); });
+  document.getElementById('gstart').onclick = () => {
+    grab();
+    group.people = Array.from({length:n}, (_,i) => ({ name: (draftNames[i]||'').trim().slice(0,20) || `Viewer ${i+1}`, answers: blankAnswers(), votes: {} }));
+    group.phase = 'answer'; group.person = 0; saveGroup(); renderHandoff(); window.scrollTo({top:0});
+  };
+}
+
+function renderHandoff(){
+  screen = 'group'; onResults = false;
+  app.className = 'wrap';
+  const p = group.people[group.person], voting = group.phase==='vote', n = group.people.length;
+  app.innerHTML = `
+    ${header()}
+    <div class="handoff">
+      <p class="step-label">${voting ? 'Voting' : 'Answers'} · ${group.person+1} of ${n}</p>
+      <p class="pass">Pass the phone to</p>
+      <h1>${esc(p.name)}</h1>
+      <p class="hint">${voting
+        ? `Time to vote on ${group.candidates.length} picks. No peeking at anyone else's votes!`
+        : 'Answer five quick questions. Your answers stay private.'}</p>
+      ${voting && group.note ? `<p class="note">${esc(group.note)}</p>` : ''}
+      <button class="btn big" id="ready">I'm ${esc(p.name)}, let's go</button>
+    </div>`;
+  wireHeader();
+  document.getElementById('ready').onclick = () => {
+    if (voting){ renderVoting(); return; }
+    answers = p.answers; step = 0; returnToResults = false; lastReady = false;   // answers are edited in place on this person
+    renderQuestion();
+  };
+}
+
+function finishPersonAnswers(){
+  if (group.person < group.people.length-1){ group.person++; }
+  else { buildGroupCandidates(); group.phase = 'vote'; group.person = 0; }
+  saveGroup(); renderHandoff(); window.scrollTo({top:0});
+}
+
+function buildGroupCandidates(){
+  const people = group.people;
+  // the most restrictive time and attention win, since everyone watches together
+  const ga = { time: TIME_ORDER[Math.min(...people.map(p => TIME_ORDER.indexOf(p.answers.time)))],
+               attn: ATTN_ORDER[Math.min(...people.map(p => ATTN_ORDER.indexOf(p.answers.attn)))] };
+  const past = new Set(group.past);
+  const base = t => !store.seen[t.t] && !past.has(t.t);
+  let note = '';
+  let pool = CATALOG.filter(t => base(t) && fitsTime(t, ga) && fitsAttention(t, false, ga));
+  if (pool.length < GROUP_SIZE){ pool = CATALOG.filter(t => base(t) && fitsTime(t, ga)); note = "Not many titles fit everyone's attention level, so a few busier picks are included."; }
+  if (pool.length < GROUP_SIZE){ pool = CATALOG.filter(base); note = "Not many titles fit everyone's time, so some longer picks are included."; }
+  const ranked = pool.map(t => {
+    const ss = people.map(p => score(t, p.answers, { personal: false }));
+    const mean = ss.reduce((x,y) => x+y, 0) / ss.length;
+    const spread = Math.sqrt(ss.reduce((x,y) => x + (y-mean)**2, 0) / ss.length);
+    const g = mean - 0.5*spread;                       // polarizing titles drop
+    return { t, s: g + Math.random()*0.8, g };
+  }).sort((x,y) => y.s - x.s);
+  const wanted = [...new Set(people.flatMap(p => picked('kind', p.answers)))];
+  const chosen = [];
+  while (chosen.length < GROUP_SIZE){
+    const rest = ranked.filter(r => !chosen.includes(r.t));
+    if (!rest.length) break;
+    chosen.push(pickOne(rest, chosen, wanted));
+  }
+  group.candidates = chosen.map(t => t.t);
+  group.gscore = Object.fromEntries(ranked.filter(r => chosen.includes(r.t)).map(r => [r.t.t, r.g]));
+  group.note = note;
+}
+
+function renderVoting(){
+  screen = 'group'; onResults = false;
+  app.className = 'wrap';
+  const p = group.people[group.person];
+  const items = group.candidates.map(findTitle).filter(Boolean);
+  const total = items.length;
+  const voteBtn = (t, v, label, word) => `<button class="vote-btn ${v}" data-v="${v}" aria-pressed="${p.votes[t.t]===v}">${label} <span>${word}</span></button>`;
+  app.innerHTML = `
+    ${header()}
+    <p class="step-label">${esc(p.name)} · Your votes</p>
+    <h1>Vote on these ${total}</h1>
+    <p class="hint">👍 if you'd happily watch it, 😐 if you could live with it, 👎 if you'd rather not. Tap 👀 if you've already seen it.</p>
+    <ul class="votes">${items.map(t => `
+      <li class="vrow" data-t="${esc(t.t)}">
+        ${posterHTML(t)}
+        <div class="vinfo">
+          <p class="meta">${t.type==='movie' ? 'Movie' : 'Series'} · ${t.y}</p>
+          <h3>${esc(t.t)}</h3>
+          <p class="vlen">${esc(lengthOf(t))}</p>
+          <p class="vwhy">${esc(t.why)}</p>
+          <a class="vtrailer" href="${trailerLink(t)}" target="_blank" rel="noopener">▶ Trailer</a>
+        </div>
+        <div class="vote" role="group" aria-label="Your vote on ${esc(t.t)}">
+          ${voteBtn(t,'up','👍','Yes')}${voteBtn(t,'meh','😐','Meh')}${voteBtn(t,'down','👎','No')}
+          <button class="seen-btn" data-v="seen" aria-pressed="${p.votes[t.t]==='seen'}">👀 Seen it</button>
+        </div>
+      </li>`).join('')}</ul>
+    <div class="votebar"><span id="voteCount"></span><button class="btn" id="doneVote">Done voting</button></div>`;
+  wireHeader();
+  wirePosters();
+  const done = document.getElementById('doneVote');
+  const count = () => items.filter(t => p.votes[t.t]).length;
+  const refresh = () => {
+    const c = count();
+    document.getElementById('voteCount').textContent = `${c} of ${total} voted`;
+    done.disabled = c < total;
+  };
+  app.querySelectorAll('.vrow').forEach(row => {
+    row.querySelectorAll('[data-v]').forEach(b => b.onclick = () => {
+      p.votes[row.dataset.t] = b.dataset.v;
+      row.querySelectorAll('[data-v]').forEach(x => x.setAttribute('aria-pressed', x === b));
+      saveGroup(); refresh();
+    });
+  });
+  done.onclick = () => {
+    if (count() < total) return;
+    if (group.person < group.people.length-1){ group.person++; saveGroup(); renderHandoff(); }
+    else { group.phase = 'results'; saveGroup(); renderGroupResults(); }
+    window.scrollTo({top:0});
+  };
+  refresh();
+}
+
+// rank this round's candidates by group happiness
+function groupRanking(){
+  const people = group.people;
+  return group.candidates.map(name => {
+    const t = findTitle(name); if (!t) return null;
+    const votes = people.map(p => p.votes[name] || 'meh');
+    return { t, votes,
+      happy: votes.reduce((s,v) => s + VOTE_POINTS[v], 0),
+      downs: votes.filter(v => v==='down').length,
+      allNo: votes.every(v => v==='down' || v==='seen') && votes.includes('down'),
+      g: (group.gscore||{})[name] || 0 };
+  }).filter(Boolean)
+    .filter(r => !r.allNo)                               // nobody wants it: never recommend
+    .sort((a,b) => b.happy - a.happy || a.downs - b.downs || b.g - a.g);
+}
+
+function renderGroupResults(){
+  screen = 'group'; onResults = false;
+  app.className = 'wrap wide';
+  const people = group.people;
+  const ranked = groupRanking();
+  const top = ranked.slice(0, GROUP_TOP);
+  const unanimous = ranked.some(r => r.downs === 0);
+  const verdict = (r, i) => `<div class="gverdict">
+      <p class="rank">#${i+1} for your group</p>
+      ${r.downs===0 ? `<span class="happy-badge">Everyone's happy ✓</span>` : ''}
+      <ul class="vlist">${people.map((p,k) => `<li><b>${esc(p.name)}</b> ${VOTE_LABEL[r.votes[k]]}</li>`).join('')}</ul>
+    </div>`;
+  app.innerHTML = `
+    ${header()}
+    <p class="step-label">Group results · round ${group.round}</p>
+    <h1>${top.length ? `Your group's top ${top.length}` : 'No winners this round'}</h1>
+    <p class="hint">${top.length
+      ? "Ranked by how happy everyone will be. A 👎 counts heavily, so nobody gets stuck with something they don't want."
+      : 'Everything got a 👎 from everyone. Try another round of 15.'}</p>
+    ${top.length && !unanimous ? `<p class="note">No unanimous favorites, so these are the closest calls.</p>` : ''}
+    <div class="cards">${top.map((r,i) => cardHTML(r.t, { verdict: verdict(r,i) })).join('')}</div>
+    <div class="more-row">
+      <button class="btn" id="gmore">Vote on ${GROUP_SIZE} more</button>
+      <button class="btn secondary" id="gnew">New group</button>
+      <button class="btn secondary" id="gsolo">Back to just me</button>
+    </div>
+    <p class="foot">Streaming availability checked for the US. Deals change often, so tap "Check latest" to confirm. Poster images via Wikipedia.</p>`;
+  wireHeader();
+  wirePosters();
+  document.getElementById('gmore').onclick = () => {
+    const before = { past: [...group.past], candidates: [...group.candidates], gscore: group.gscore, note: group.note };
+    group.past.push(...group.candidates);
+    buildGroupCandidates();
+    if (!group.candidates.length){ Object.assign(group, before); toast("You've voted on everything that fits!"); return; }
+    group.round++; group.phase = 'vote'; group.person = 0; saveGroup(); renderHandoff(); window.scrollTo({top:0});
+  };
+  document.getElementById('gnew').onclick = () => { draftNames = people.map(p => p.name); startGroup(); };
+  document.getElementById('gsolo').onclick = leaveGroup;
+}
+
+function resumeGroup(saved){
+  mode = 'group'; group = saved;
+  if (group.phase==='answer'){ renderHandoff(); }
+  else if (group.phase==='vote'){ renderVoting(); }          // pick up exactly where this voter left off
+  else if (group.phase==='results'){ renderGroupResults(); }
+  else renderGroupSetup();
+}
+
 /* ---------- boot ---------- */
 fetch('catalog.json').then(r => r.json()).then(data => {
   CATALOG = data.titles; CATALOG_DATE = data.catalogDate;
+  const saved = loadGroup();
+  if (saved && saved.phase && Array.isArray(saved.people)) { resumeGroup(saved); return; }
   if (store.answers && isComplete()) showResults(true);
   else { answers = blankAnswers(); renderQuestion(); }   // also clears answers saved by older versions
 }).catch(() => {
