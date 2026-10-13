@@ -5,6 +5,9 @@ Live page: https://claude.ai/artifact/9Gpo8MSeckWPfQdiYDxhya (private until you 
 ## Files
 - `index.html` — the page. **All question wording is in the `QUESTIONS` block at the top of the script.** Change labels (`l`) and descriptions (`d`) freely; the `v` values are what titles are tagged with.
 - `catalog.json` — 226 titles with mood/genre/setting tags, Rotten Tomatoes critics score, awards, and US streaming availability (checked on JustWatch, dated in `catalogDate`).
+  - `img` — poster or title-card image from Wikipedia (199 titles; `null` shows an initials placeholder). Claude's artifact viewer blocks outside images, so posters only appear on the Vercel site.
+  - `stars` — up to 3 "Featured stars": top-billed actors/directors who've won or been nominated for an Oscar or Emmy (`n` name, `r` role, `a` highest honor). Spot-checked against Wikipedia, October 2026.
+- `build.js` / `vercel.json` — Vercel build step that wraps `index.html` in a full HTML page.
 
 ## How picks are chosen
 1. **Filters:** how much time you have (30 min = short-episode series, 1 hr = series with up to 65-min episodes, movie = movies, all night = anything). Half-watching removes subtitled and very complex titles. Anything you've thumbed or skipped is removed.

@@ -9,6 +9,7 @@
   --line:#D8D2E6; --accent:#5A3FA0; --accent-soft:#E6DEF7; --accent-ink:#FFFFFF;
   --gold:#9A5A06; --gold-soft:#FBEBD3; --tomato:#C23A27; --good:#23724A; --good-soft:#DDF1E5;
   --bad:#A8372F; --bad-soft:#F7E0DE; --shadow:0 1px 2px rgba(29,26,43,.06),0 8px 24px rgba(29,26,43,.07);
+  --logo-bg:#F1EEF7; /* TV logos are often dark-on-transparent, so they always sit on a light panel */
   --display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
   --body:"Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;
 }
@@ -88,8 +89,21 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(2rem,6vw,3rem);lin
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:18px;margin-top:20px;align-items:start}
 .card{background:var(--surface);border-radius:20px;box-shadow:var(--shadow);padding:22px 22px 18px;display:flex;flex-direction:column;gap:14px;transition:opacity .28s,transform .28s}
 .card.out{opacity:0;transform:translateY(8px) scale(.98)}
+.card-head{display:grid;grid-template-columns:96px minmax(0,1fr);gap:16px;align-items:start}
+.poster{position:relative;width:96px;max-width:100%;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:var(--accent-soft);display:grid;place-items:center}
+.poster .ph{font-family:var(--display);font-weight:800;font-size:1.7rem;color:var(--accent);letter-spacing:.02em}
+.poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.poster.logo img{object-fit:contain;padding:8px;background:var(--logo-bg)}
 .meta{font-size:.85rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:0}
 .card h2{font-family:var(--display);font-weight:800;font-size:1.7rem;line-height:1.08;letter-spacing:-.015em;margin:4px 0 0;text-wrap:balance}
+.length{margin:8px 0 0;font-weight:700;font-variant-numeric:tabular-nums}
+.stars h3{font-size:.85rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.stars ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.stars li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px}
+.who{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.star-name{font-weight:700}
+.star-role{color:var(--muted);font-size:.85rem}
+.stars .badge{white-space:nowrap}
 .fit{margin:0;font-weight:700;color:var(--accent)}
 .why{margin:0}
 .badges{display:flex;flex-wrap:wrap;gap:8px}
@@ -165,19 +179,19 @@ const QUESTIONS = [
     {v:'thoughtful', l:'Thoughtful', d:'Something to chew on'},
     {v:'smart', l:'Smarter', d:'Learn something'},
     {v:'relaxed', l:'Relaxed', d:'Calm and cozy'} ]},
-  { id:'sound', q:'What sounds good?', hint:'Pick as many as you like, or skip for a surprise.', type:'groups', groups:[
+  { id:'sound', q:'What sounds good?', hint:'Pick one or more in each row, or Surprise me.', type:'groups', groups:[
     {key:'kind', label:'Kind of story', options:[
+      {v:'any', l:'Surprise me'},
       {v:'action', l:'Action & adventure'}, {v:'comedy', l:'Comedy'}, {v:'scifi', l:'Sci-fi'},
       {v:'mystery', l:'Mystery'}, {v:'drama', l:'Drama'}, {v:'doc', l:'Documentary'} ]},
     {key:'era', label:"When it's set", options:[
-      {v:'modern', l:'Modern day'}, {v:'1900s', l:'The 1900s'}, {v:'1800s', l:'1800s & earlier'}, {v:'future', l:'The future'} ]},
-    {key:'lead', label:'Whose story', options:[
-      {v:'women', l:'Women-led'}, {v:'men', l:'Men-led'} ]} ]},
+      {v:'any', l:'Surprise me'},
+      {v:'modern', l:'Modern day'}, {v:'1900s', l:'The 1900s'}, {v:'1800s', l:'1800s & earlier'}, {v:'future', l:'The future'} ]} ]},
   { id:'time', q:'How much time do you have?', hint:'This decides between shows and movies.', type:'one', options:[
-    {v:'30', l:'About 30 minutes', d:'A sitcom episode'},
-    {v:'60', l:'About an hour', d:'A drama episode'},
-    {v:'movie', l:'Time for a movie', d:'1½ to 3 hours'},
-    {v:'all', l:'All night', d:'A movie, or start a series'} ]},
+    {v:'30', l:'About 30 minutes'},
+    {v:'60', l:'About an hour'},
+    {v:'movie', l:'1.5 to 3 hours'},
+    {v:'all', l:'All day/night'} ]},
   { id:'attn', q:'How much attention can you give?', hint:'Be honest. Phones count!', type:'one', options:[
     {v:'low', l:'Half-watching', d:'Easy to follow, no subtitles'},
     {v:'normal', l:'Normal', d:'Happy to follow along'},
@@ -201,7 +215,8 @@ const store = Object.assign({ seen:{}, prefs:{}, services:null, library:false, a
 /* ---------- state ---------- */
 let CATALOG = [], CATALOG_DATE = '';
 let step = 0, returnToResults = false;
-let answers = store.answers || { vibe:null, feel:[], sound:{kind:[],era:[],lead:[]}, time:null, attn:null };
+const blankAnswers = () => ({ vibe:null, feel:[], sound:{kind:[],era:[]}, time:null, attn:null });
+let answers = store.answers || blankAnswers();
 let shown = [], passed = new Set(), jitter = new Map();
 const app = document.getElementById('app');
 
@@ -217,6 +232,8 @@ const shortDate = () => new Date(CATALOG_DATE+'T12:00:00').toLocaleDateString('e
 function toast(msg){ const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(()=>el.classList.remove('show'), 2600); }
 
 /* ---------- engine ---------- */
+// specific choices in a "sounds good" row; "Surprise me" (any) or nothing means no preference
+const picked = key => ((answers.sound||{})[key] || []).filter(v => v !== 'any');
 function fitsTime(t){
   switch(answers.time){
     case '30': return t.type==='series' && t.min<=35;
@@ -243,10 +260,9 @@ function score(t){
   const feel = answers.feel || [];
   if (feel.length){ const m = feel.filter(f=>t.feel.includes(f)).length; s += m ? m*3 : -3; }
   if (answers.vibe && answers.vibe!=='neutral') s += t.vibe.includes(answers.vibe) ? 2 : -0.5;
-  const snd = answers.sound || {};
-  if (snd.kind && snd.kind.length){ const m = snd.kind.filter(k=>t.kind.includes(k)).length; s += m ? 2.5 + (m-1) : -5; }
-  if (snd.era && snd.era.length){ s += snd.era.includes(t.era) ? 2.5 : -5; }
-  if (snd.lead && snd.lead.length){ s += snd.lead.includes(t.lead) ? 1.5 : (t.lead==='ensemble' ? -0.3 : -1.2); }
+  const kinds = picked('kind'), eras = picked('era');
+  if (kinds.length){ const m = kinds.filter(k=>t.kind.includes(k)).length; s += m ? 2.5 + (m-1) : -5; }
+  if (eras.length){ s += eras.includes(t.era) ? 2.5 : -5; }
   // quality
   s += t.rt==null ? 0.6 : Math.max(-2, Math.min(3, (t.rt-72)/9));
   if (t.aw){ s += /Best Picture/.test(t.aw) ? 2 : /^Won|winner/i.test(t.aw) ? 1.2 : 0.5; }
@@ -275,7 +291,7 @@ function pickOne(ranked, chosen){
   let best = null, bestS = -Infinity;
   for (const r of ranked.slice(0, 25)){
     let adj = r.s;
-    const wanted = answers.sound.kind || [];
+    const wanted = picked('kind');
     for (const c of chosen){ adj -= 1.5 * r.t.kind.filter(k=>c.kind.includes(k) && !wanted.includes(k)).length; if (c.type!==r.t.type) adj += 0.3; }
     if (adj > bestS){ bestS = adj; best = r.t; }
   }
@@ -300,7 +316,7 @@ function isAnswered(q){
   const a = answers[q.id];
   if (q.type==='one') return !!a;
   if (q.type==='multi') return a && a.length>0;
-  return true;
+  return q.groups.every(g => answers.sound && (answers.sound[g.key]||[]).length > 0);
 }
 function renderQuestion(){
   const q = QUESTIONS[step];
@@ -316,8 +332,7 @@ function renderQuestion(){
       return `<button class="tile" data-v="${o.v}" aria-pressed="${on}"><b>${esc(o.l)}</b>${o.d?`<small>${esc(o.d)}</small>`:''}</button>`;
     }).join('')}</div>`;
   }
-  const soundEmpty = q.type==='groups' && !Object.values(answers.sound).some(a=>a.length);
-  const nextLabel = returnToResults ? 'See my picks' : step===QUESTIONS.length-1 ? 'Show me what to watch' : (soundEmpty ? 'Surprise me' : 'Next');
+  const nextLabel = returnToResults ? 'See my picks' : step===QUESTIONS.length-1 ? 'Show me what to watch' : 'Next';
   app.innerHTML = `
     ${header()}
     <div class="progress" aria-hidden="true">${QUESTIONS.map((_,i)=>`<span class="${i<=step?'on':''}"></span>`).join('')}</div>
@@ -338,8 +353,15 @@ function renderQuestion(){
     renderQuestion();
   });
   app.querySelectorAll('.chip').forEach(b => b.onclick = () => {
-    const arr = answers.sound[b.dataset.g], v = b.dataset.v, i = arr.indexOf(v);
-    if (i>=0) arr.splice(i,1); else arr.push(v);
+    const g = b.dataset.g, v = b.dataset.v;
+    let arr = answers.sound[g] || [];
+    if (v === 'any') arr = arr.includes('any') ? [] : ['any'];          // Surprise me stands alone
+    else {
+      arr = arr.filter(x => x !== 'any');
+      const i = arr.indexOf(v);
+      if (i>=0) arr.splice(i,1); else arr.push(v);
+    }
+    answers.sound[g] = arr;
     renderQuestion();
   });
   const back = document.getElementById('back'); if (back) back.onclick = () => { step--; renderQuestion(); };
@@ -363,7 +385,7 @@ function wireHeader(){
   document.getElementById('svcBtn').onclick = openServices;
 }
 function startOver(){
-  answers = { vibe:null, feel:[], sound:{kind:[],era:[],lead:[]}, time:null, attn:null };
+  answers = blankAnswers();
   store.answers = null; save();
   step = 0; returnToResults = false; passed = new Set(); jitter = new Map(); shown = [];
   renderQuestion(); window.scrollTo({top:0});
@@ -377,8 +399,9 @@ function answerChips(){
   const out = [];
   out.push([0, 'Vibe', optLabel('vibe', answers.vibe)]);
   out.push([1, 'Feel', answers.feel.map(v=>optLabel('feel',v)).join(' + ')]);
-  const s = answers.sound, parts = [...s.kind.map(v=>soundLabel('kind',v)), ...s.era.map(v=>soundLabel('era',v)), ...s.lead.map(v=>soundLabel('lead',v))];
-  out.push([2, 'Sounds good', parts.length ? parts.join(', ') : 'Surprise me']);
+  const rowLabel = key => { const a = answers.sound[key] || []; return a.length ? a.map(v=>soundLabel(key,v)).join(', ') : 'Surprise me'; };
+  out.push([2, 'Kind', rowLabel('kind')]);
+  out.push([2, 'Set', rowLabel('era')]);
   out.push([3, 'Time', optLabel('time', answers.time)]);
   out.push([4, 'Attention', optLabel('attn', answers.attn)]);
   return out.map(([i,k,v]) => `<button class="answer" data-step="${i}">${k}: <b>${esc(v)}</b></button>`).join('');
@@ -389,7 +412,7 @@ function fitLine(t){
   let line = feels.length ? `To feel ${feels.join(' & ')}` : '';
   if (vibe) line = line ? `${line}, and ${vibe}` : vibe.charAt(0).toUpperCase()+vibe.slice(1);
   if (!line){
-    const k = (answers.sound.kind||[]).find(k=>t.kind.includes(k));
+    const k = picked('kind').find(k=>t.kind.includes(k));
     line = k ? `A great ${soundLabel('kind',k).toLowerCase()} pick` : 'A crowd favorite worth your time';
   }
   return line;
@@ -400,10 +423,26 @@ function svcChips(list, t){
     return `<a class="svc ${yours?'yours':''}" href="${jwLink(t)}" target="_blank" rel="noopener" title="Open watch links on JustWatch">${esc(s)}</a>`;
   }).join('');
 }
+function initials(title){
+  const words = title.replace(/[^A-Za-z0-9 ]/g,' ').split(/\s+/).filter(w => w && !/^(the|a|an|of|and|in|at|to|for)$/i.test(w));
+  return (words.slice(0,2).map(w=>w[0]).join('') || title[0]).toUpperCase();
+}
+function posterHTML(t){
+  const ph = `<span class="ph" aria-hidden="true">${esc(initials(t.t))}</span>`;
+  const img = t.img ? `<img src="${esc(t.img)}" alt="Poster for ${esc(t.t)}" loading="lazy" referrerpolicy="no-referrer">` : '';
+  return `<div class="poster ${t.type==='series'?'logo':''}">${ph}${img}</div>`;
+}
+function starsHTML(t){
+  if (!t.stars || !t.stars.length) return '';
+  return `<section class="stars"><h3>Featured stars</h3><ul>${t.stars.map(p =>
+    `<li><span class="who"><span class="star-name">${esc(p.n)}</span><span class="star-role">${esc(p.r)}</span></span><span class="badge award">🏆 ${esc(p.a)}</span></li>`
+  ).join('')}</ul></section>`;
+}
 function cardHTML(t){
-  const meta = t.type==='movie'
-    ? `Movie · ${fmtMin(t.min)} · ${t.y}`
-    : `Series · ${t.se} season${t.se>1?'s':''} · ${t.min}-min episodes`;
+  const meta = t.type==='movie' ? `Movie · ${t.y}` : `Series · ${t.y}`;
+  const length = t.type==='movie'
+    ? fmtMin(t.min)
+    : `${t.se} season${t.se>1?'s':''} · ${t.min}-min episodes`;
   const badges = [];
   if (t.rt!=null) badges.push(`<span class="badge rt" title="Rotten Tomatoes critics score"><i></i>${t.rt}% Rotten Tomatoes</span>`);
   if (t.aw) badges.push(`<span class="badge award">🏆 ${esc(t.aw)}</span>`);
@@ -414,13 +453,18 @@ function cardHTML(t){
   if (t.r) rows.push(`<div class="where-row"><span>Rent</span><div class="svcs"><a class="svc" href="${jwLink(t)}" target="_blank" rel="noopener">From $${t.r.toFixed(2)} (Apple, Amazon…)</a></div></div>`);
   if (!rows.length) rows.push(`<div class="where-row"><span>Buy</span><div class="svcs"><a class="svc" href="${jwLink(t)}" target="_blank" rel="noopener">See options</a></div></div>`);
   return `<article class="card" data-t="${esc(t.t)}">
-    <div>
-      <p class="meta">${meta}</p>
-      <h2>${esc(t.t)}</h2>
+    <div class="card-head">
+      ${posterHTML(t)}
+      <div>
+        <p class="meta">${meta}</p>
+        <h2>${esc(t.t)}</h2>
+        <p class="length">${esc(length)}</p>
+      </div>
     </div>
     <p class="fit">${esc(fitLine(t))}</p>
     <p class="why">${esc(t.why)}</p>
     ${badges.length?`<div class="badges">${badges.join('')}</div>`:''}
+    ${starsHTML(t)}
     <a class="trailer" href="${trailerLink(t)}" target="_blank" rel="noopener">Watch the trailer</a>
     <section class="where">
       <h3>Where to watch</h3>
@@ -454,7 +498,7 @@ function renderResults(){
       <button class="btn" id="more">Show me 3 more</button>
       <button class="btn secondary" id="restart">Start over</button>
     </div>
-    <p class="foot">Streaming availability checked ${esc(niceDate)} for the US. Deals change often, so tap "Check latest" to confirm. Scores are Rotten Tomatoes critics' ratings.</p>`;
+    <p class="foot">Streaming availability checked ${esc(niceDate)} for the US. Deals change often, so tap "Check latest" to confirm. Scores are Rotten Tomatoes critics' ratings. Poster images via Wikipedia.</p>`;
   wireHeader();
   const sb = document.getElementById('svcBanner'); if (sb) sb.onclick = openServices;
   document.getElementById('restart').onclick = startOver;
@@ -468,6 +512,11 @@ function renderResults(){
   app.querySelectorAll('.answer').forEach(b => b.onclick = () => { step = +b.dataset.step; returnToResults = true; renderQuestion(); window.scrollTo({top:0}); });
   app.querySelectorAll('.card').forEach(card => {
     card.querySelectorAll('[data-act]').forEach(btn => btn.onclick = () => verdict(card, btn.dataset.act));
+  });
+  // posters: fall back to the initials block when an image can't load (e.g. blocked in the artifact viewer)
+  app.querySelectorAll('.poster img').forEach(img => {
+    if (img.complete && !img.naturalWidth) img.remove();
+    else img.addEventListener('error', () => img.remove());
   });
 }
 function verdict(card, act){
@@ -532,7 +581,8 @@ const isComplete = () => QUESTIONS.every(isAnswered);
 /* ---------- boot ---------- */
 fetch('catalog.json').then(r => r.json()).then(data => {
   CATALOG = data.titles; CATALOG_DATE = data.catalogDate;
-  if (store.answers && isComplete()) showResults(true); else renderQuestion();
+  if (store.answers && isComplete()) showResults(true);
+  else { answers = blankAnswers(); renderQuestion(); }   // also clears answers saved by older versions
 }).catch(() => {
   app.innerHTML = '<p style="padding-top:40px">Couldn’t load the title list. Please refresh the page.</p>';
 });
