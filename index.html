@@ -57,6 +57,13 @@ button{cursor:pointer}
 .arrow:disabled{opacity:.35;cursor:not-allowed}
 .arrow.go{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .arrow.pulse{animation:pulse .9s ease-out 1}
+.arrow{position:relative}
+.arrow .ring{position:absolute;inset:-10px;width:calc(100% + 20px);height:calc(100% + 20px);transform:rotate(-90deg);pointer-events:none;display:none}
+.arrow .ring circle{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;stroke-dasharray:150.8;stroke-dashoffset:150.8}
+.arrow.counting .ring{display:block}
+.arrow.counting .ring circle{animation:ring 2.5s linear forwards}
+@keyframes ring{to{stroke-dashoffset:0}}
+.autohint{min-height:1.5em;margin:14px 0 0;color:var(--muted);font-size:.95rem}
 @keyframes pulse{0%{box-shadow:0 0 0 0 var(--accent)}100%{box-shadow:0 0 0 12px transparent}}
 .progress{display:flex;gap:6px;margin-block:10px 6px}
 .progress span{height:6px;flex:1;border-radius:3px;background:var(--line)}
@@ -200,8 +207,13 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(2rem,6vw,3rem);lin
 .happy-badge{background:var(--good-soft);color:var(--good);border-radius:999px;padding:4px 12px;font-weight:700;font-size:.88rem}
 .vlist{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
 .vlist li{background:var(--surface-2);border-radius:999px;padding:4px 12px;font-size:.9rem}
+.cards.single{grid-template-columns:minmax(0,1fr)}
+.pick-nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap}
+.pick-nav .btn:last-child{margin-left:auto}
+.more-row.small{margin-top:14px;gap:20px}
+.more-row.small .linkish{font-size:.95rem}
 
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.arrow.pulse{animation:none}.arrow.counting .ring circle{animation:none;stroke-dashoffset:0}}
 </style>
 
 <div id="app" class="wrap"><p style="padding-top:40px">Loading picks…</p></div>
@@ -392,7 +404,26 @@ function isAnswered(q){
     return sel.length > 0 && sel.every(v => valid(g.options, v));
   });
 }
-function renderQuestion(){
+/* Auto-advance: one-choice pages move on right after a tap. Multi-choice pages (2 and 3) start a short
+   countdown on the → arrow once they're ready; each tap restarts it. Only taps start it ("changed"),
+   so going back to an answered page never pushes you forward before you can edit. */
+const AUTO_DELAY = 2500;
+let autoTimer = null;
+function clearAuto(){ clearTimeout(autoTimer); autoTimer = null; }
+function autoAdvance(){ autoTimer = null; if (!document.querySelector('.sheet-bg')) advance(); }
+function armAuto(q){
+  if (q.type==='one'){ autoTimer = setTimeout(autoAdvance, 180); return; }
+  if (q.type==='multi' && answers[q.id].length >= (q.max||99)){ autoTimer = setTimeout(autoAdvance, 350); return; }  // hit the max: no need to wait
+  const arrow = document.getElementById('nextArrow');
+  arrow.classList.remove('pulse'); arrow.classList.add('counting');
+  document.getElementById('autoHint').textContent = q.type==='multi'
+    ? 'Moving on in a moment. Tap another to add it.'
+    : 'Moving on in a moment. Tap more to add them.';
+  autoTimer = setTimeout(autoAdvance, AUTO_DELAY);
+}
+
+function renderQuestion(changed = false){
+  clearAuto();
   const q = QUESTIONS[step];
   app.className = 'wrap';
   let body = '';
@@ -423,16 +454,18 @@ function renderQuestion(){
     <h1>${esc(q.q)}</h1>
     <p class="hint">${esc(q.hint)}</p>
     ${body}
+    <p class="autohint" id="autoHint" aria-live="polite"></p>
     ${groupInvite}`;
   wireHeader();
   wireStepBar(goBack, advance);
   const gl = document.getElementById('groupLink'); if (gl) gl.onclick = startGroup;
+  if (changed && ready) armAuto(q);
   app.querySelectorAll('.tile').forEach(b => b.onclick = () => {
     const v = b.dataset.v;
-    if (q.type==='one'){ answers[q.id] = v; renderQuestion(); setTimeout(advance, 180); return; }
+    if (q.type==='one'){ answers[q.id] = v; renderQuestion(true); return; }
     const arr = answers[q.id], i = arr.indexOf(v);
     if (i>=0) arr.splice(i,1); else { arr.push(v); if (arr.length > (q.max||99)) arr.shift(); }
-    renderQuestion();
+    renderQuestion(true);
   });
   app.querySelectorAll('.chip').forEach(b => b.onclick = () => {
     const g = b.dataset.g, v = b.dataset.v;
@@ -444,16 +477,18 @@ function renderQuestion(){
       if (i>=0) arr.splice(i,1); else arr.push(v);
     }
     answers.sound[g] = arr;
-    renderQuestion();
+    renderQuestion(true);
   });
 }
 function advance(){
+  clearAuto();
   if (screen!=='question' || !isAnswered(QUESTIONS[step])) return;
   if (mode==='group' && step===QUESTIONS.length-1){ finishPersonAnswers(); return; }
   if (returnToResults || step===QUESTIONS.length-1){ returnToResults = false; showResults(true); return; }
   step++; lastReady = isAnswered(QUESTIONS[step]); renderQuestion(); window.scrollTo({top:0});
 }
 function goBack(){
+  clearAuto();
   if (screen==='results'){ onResults = false; step = QUESTIONS.length-1; returnToResults = true; lastReady = true; renderQuestion(); window.scrollTo({top:0}); return; }
   if (screen!=='question' || step===0) return;
   returnToResults = false; step--; lastReady = true; renderQuestion(); window.scrollTo({top:0});
@@ -466,7 +501,7 @@ function stepBar({ backDisabled, nextDisabled, nextLabel, pulse, progress }){
   return `<div class="stepbar">
     <button class="arrow" id="prevArrow" aria-label="${backDisabled ? 'Previous question' : onResults ? 'Back to the questions' : 'Previous question'}" ${backDisabled?'disabled':''}>${ARROW_LEFT}</button>
     <div class="progress" aria-hidden="true">${QUESTIONS.map((_,i)=>`<span class="${i<=progress?'on':''}"></span>`).join('')}</div>
-    <button class="arrow ${nextDisabled?'':'go'} ${pulse?'pulse':''}" id="nextArrow" aria-label="${esc(nextLabel)}" ${nextDisabled?'disabled':''}>${ARROW_RIGHT}</button>
+    <button class="arrow ${nextDisabled?'':'go'} ${pulse?'pulse':''}" id="nextArrow" aria-label="${esc(nextLabel)}" ${nextDisabled?'disabled':''}>${ARROW_RIGHT}<svg class="ring" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/></svg></button>
   </div>`;
 }
 function wireStepBar(onPrev, onNext){
@@ -708,9 +743,9 @@ const isComplete = () => QUESTIONS.every(isAnswered);
    { id, size, people:[{ name, answers, votes:{title:'up'|'meh'|'down'|'seen'} }], candidates:[titles],
      past:[titles voted in earlier rounds], gscore:{title:number}, phase, person, round, note }
    A later "join from your own phone" version only needs to sync this object. */
-const GROUP_KEY = 'wtw.group', GROUP_SIZE = 15, GROUP_TOP = 5;
-const VOTE_POINTS = { up: 2, meh: 0.5, down: -4, seen: 0 };     // a 👎 weighs heavily: nobody should be miserable
-const VOTE_LABEL = { up: '👍', meh: '😐', down: '👎', seen: '👀 seen it' };
+const GROUP_KEY = 'wtw.group', GROUP_SIZE = 15;
+const VOTE_POINTS = { up: 2, meh: 0.5, down: -4 };     // a 👎 weighs heavily: nobody should be miserable
+const VOTE_LABEL = { up: '👍', meh: '😐', down: '👎' };
 const TIME_ORDER = ['30','60','movie','all'], ATTN_ORDER = ['low','normal','high'];
 let draftNames = [];
 
@@ -740,7 +775,7 @@ function renderGroupSetup(){
     ${header()}
     <p class="step-label">Group mode</p>
     <h1>Who's watching?</h1>
-    <p class="hint">Pass the phone around. Everyone answers privately, then everyone votes on the same ${GROUP_SIZE} picks, and we'll show the ${GROUP_TOP} your group will be happiest with.</p>
+    <p class="hint">Pass the phone around. Everyone answers privately, then everyone votes on the same ${GROUP_SIZE} picks, and we'll pick the one your group will be happiest with.</p>
     <p class="group-label">How many people?</p>
     <div class="chips">${[2,3,4].map(k => `<button class="chip" data-n="${k}" aria-pressed="${k===n}">${k} people</button>`).join('')}</div>
     <p class="group-label" style="margin-top:22px">Names <span class="opt">(optional)</span></p>
@@ -821,6 +856,7 @@ function renderVoting(){
   screen = 'group'; onResults = false;
   app.className = 'wrap';
   const p = group.people[group.person];
+  p.seen = p.seen || {};
   const items = group.candidates.map(findTitle).filter(Boolean);
   const total = items.length;
   const voteBtn = (t, v, label, word) => `<button class="vote-btn ${v}" data-v="${v}" aria-pressed="${p.votes[t.t]===v}">${label} <span>${word}</span></button>`;
@@ -828,7 +864,7 @@ function renderVoting(){
     ${header()}
     <p class="step-label">${esc(p.name)} · Your votes</p>
     <h1>Vote on these ${total}</h1>
-    <p class="hint">👍 if you'd happily watch it, 😐 if you could live with it, 👎 if you'd rather not. Tap 👀 if you've already seen it.</p>
+    <p class="hint">👍 if you'd happily watch it, 😐 if you could live with it, 👎 if you'd rather not. Already seen it? Tick 👀 too, and vote on whether you'd watch it again.</p>
     <ul class="votes">${items.map(t => `
       <li class="vrow" data-t="${esc(t.t)}">
         ${posterHTML(t)}
@@ -841,14 +877,15 @@ function renderVoting(){
         </div>
         <div class="vote" role="group" aria-label="Your vote on ${esc(t.t)}">
           ${voteBtn(t,'up','👍','Yes')}${voteBtn(t,'meh','😐','Meh')}${voteBtn(t,'down','👎','No')}
-          <button class="seen-btn" data-v="seen" aria-pressed="${p.votes[t.t]==='seen'}">👀 Seen it</button>
+          <button class="seen-btn" data-seen aria-pressed="${!!p.seen[t.t]}">👀 I've seen it</button>
         </div>
       </li>`).join('')}</ul>
     <div class="votebar"><span id="voteCount"></span><button class="btn" id="doneVote">Done voting</button></div>`;
   wireHeader();
   wirePosters();
   const done = document.getElementById('doneVote');
-  const count = () => items.filter(t => p.votes[t.t]).length;
+  const isVote = v => v==='up' || v==='meh' || v==='down';       // "seen" from older saves isn't a vote
+  const count = () => items.filter(t => isVote(p.votes[t.t])).length;
   const refresh = () => {
     const c = count();
     document.getElementById('voteCount').textContent = `${c} of ${total} voted`;
@@ -860,11 +897,18 @@ function renderVoting(){
       row.querySelectorAll('[data-v]').forEach(x => x.setAttribute('aria-pressed', x === b));
       saveGroup(); refresh();
     });
+    const seenBtn = row.querySelector('[data-seen]');          // a tag on top of the vote, not a vote
+    seenBtn.onclick = () => {
+      const t = row.dataset.t;
+      if (p.seen[t]) delete p.seen[t]; else p.seen[t] = true;
+      seenBtn.setAttribute('aria-pressed', !!p.seen[t]);
+      saveGroup();
+    };
   });
   done.onclick = () => {
     if (count() < total) return;
     if (group.person < group.people.length-1){ group.person++; saveGroup(); renderHandoff(); }
-    else { group.phase = 'results'; saveGroup(); renderGroupResults(); }
+    else { group.phase = 'results'; group.pick = 0; saveGroup(); renderGroupResults(); }
     window.scrollTo({top:0});
   };
   refresh();
@@ -875,52 +919,66 @@ function groupRanking(){
   const people = group.people;
   return group.candidates.map(name => {
     const t = findTitle(name); if (!t) return null;
-    const votes = people.map(p => p.votes[name] || 'meh');
-    return { t, votes,
+    const votes = people.map(p => VOTE_POINTS[p.votes[name]] !== undefined ? p.votes[name] : 'meh');
+    const seen = people.map(p => !!(p.seen && p.seen[name]));
+    return { t, votes, seen,
       happy: votes.reduce((s,v) => s + VOTE_POINTS[v], 0),
       downs: votes.filter(v => v==='down').length,
-      allNo: votes.every(v => v==='down' || v==='seen') && votes.includes('down'),
+      seenCount: seen.filter(Boolean).length,
+      allNo: votes.every(v => v==='down'),
       g: (group.gscore||{})[name] || 0 };
   }).filter(Boolean)
     .filter(r => !r.allNo)                               // nobody wants it: never recommend
-    .sort((a,b) => b.happy - a.happy || a.downs - b.downs || b.g - a.g);
+    // ties: fewer 👎, then fewer people who've already seen it, then the engine's group score
+    .sort((a,b) => b.happy - a.happy || a.downs - b.downs || a.seenCount - b.seenCount || b.g - a.g);
 }
 
 function renderGroupResults(){
   screen = 'group'; onResults = false;
   app.className = 'wrap wide';
+  app.className = 'wrap';
   const people = group.people;
   const ranked = groupRanking();
-  const top = ranked.slice(0, GROUP_TOP);
-  const unanimous = ranked.some(r => r.downs === 0);
-  const verdict = (r, i) => `<div class="gverdict">
+  const i = Math.min(Math.max(0, group.pick || 0), Math.max(0, ranked.length - 1));
+  group.pick = i;
+  const r = ranked[i];
+  const isLast = i >= ranked.length - 1;
+  const verdict = r ? `<div class="gverdict">
       <p class="rank">#${i+1} for your group</p>
       ${r.downs===0 ? `<span class="happy-badge">Everyone's happy ✓</span>` : ''}
-      <ul class="vlist">${people.map((p,k) => `<li><b>${esc(p.name)}</b> ${VOTE_LABEL[r.votes[k]]}</li>`).join('')}</ul>
-    </div>`;
+      <ul class="vlist">${people.map((p,k) => `<li><b>${esc(p.name)}</b> ${VOTE_LABEL[r.votes[k]]}${r.seen[k] ? ' · 👀 seen it' : ''}</li>`).join('')}</ul>
+    </div>` : '';
   app.innerHTML = `
     ${header()}
-    <p class="step-label">Group results · round ${group.round}</p>
-    <h1>${top.length ? `Your group's top ${top.length}` : 'No winners this round'}</h1>
-    <p class="hint">${top.length
-      ? "Ranked by how happy everyone will be. A 👎 counts heavily, so nobody gets stuck with something they don't want."
-      : 'Everything got a 👎 from everyone. Try another round of 15.'}</p>
-    ${top.length && !unanimous ? `<p class="note">No unanimous favorites, so these are the closest calls.</p>` : ''}
-    <div class="cards">${top.map((r,i) => cardHTML(r.t, { verdict: verdict(r,i) })).join('')}</div>
-    <div class="more-row">
-      <button class="btn" id="gmore">Vote on ${GROUP_SIZE} more</button>
-      <button class="btn secondary" id="gnew">New group</button>
-      <button class="btn secondary" id="gsolo">Back to just me</button>
+    <p class="step-label">Group pick · round ${group.round}${r ? ` · option ${i+1} of ${ranked.length}` : ''}</p>
+    <h1>${r ? 'Tonight, watch…' : 'No winners this round'}</h1>
+    ${r
+      ? (r.downs ? `<p class="note">Not everyone's thrilled, so this is the closest call.</p>` : '')
+      : `<p class="hint">Everything got a 👎 from everyone. Try another round of ${GROUP_SIZE}.</p>`}
+    ${r ? `<div class="cards single">${cardHTML(r.t, { verdict })}</div>` : ''}
+    <div class="pick-nav">
+      ${i > 0 ? '<button class="btn secondary" id="gprev">← Back</button>' : '<span></span>'}
+      ${r && !isLast
+        ? '<button class="btn" id="gnext">Not this one? Next →</button>'
+        : `<button class="btn" id="gmore">Vote on ${GROUP_SIZE} more</button>`}
     </div>
-    <p class="foot">Streaming availability checked for the US. Deals change often, so tap "Check latest" to confirm. Poster images via Wikipedia.</p>`;
+    <div class="more-row small">
+      <button class="linkish" id="gnew">New group</button>
+      <button class="linkish" id="gsolo">Back to just me</button>
+    </div>
+    <p class="foot">Picks are ranked by how happy everyone will be: 👍 counts for a lot, and a single 👎 counts heavily against. Streaming availability checked for the US; tap "Check latest" to confirm. Poster images via Wikipedia.</p>`;
   wireHeader();
   wirePosters();
-  document.getElementById('gmore').onclick = () => {
+  const go = d => { group.pick = i + d; saveGroup(); renderGroupResults(); window.scrollTo({top:0}); };
+  const prev = document.getElementById('gprev'); if (prev) prev.onclick = () => go(-1);
+  const next = document.getElementById('gnext'); if (next) next.onclick = () => go(1);
+  const more = document.getElementById('gmore');
+  if (more) more.onclick = () => {
     const before = { past: [...group.past], candidates: [...group.candidates], gscore: group.gscore, note: group.note };
     group.past.push(...group.candidates);
     buildGroupCandidates();
     if (!group.candidates.length){ Object.assign(group, before); toast("You've voted on everything that fits!"); return; }
-    group.round++; group.phase = 'vote'; group.person = 0; saveGroup(); renderHandoff(); window.scrollTo({top:0});
+    group.round++; group.pick = 0; group.phase = 'vote'; group.person = 0; saveGroup(); renderHandoff(); window.scrollTo({top:0});
   };
   document.getElementById('gnew').onclick = () => { draftNames = people.map(p => p.name); startGroup(); };
   document.getElementById('gsolo').onclick = leaveGroup;

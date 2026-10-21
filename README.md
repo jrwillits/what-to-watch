@@ -20,9 +20,9 @@ Tap **👥 Group** (or "Try Group mode" under question 1) to decide with 2–4 p
 1. **Who's watching?** Pick 2–4 people and (optionally) names.
 2. **Answers.** The phone is passed around; each person answers the 5 questions privately.
 3. **The 15.** Built for everyone at once. The shortest time and lowest attention anyone chose are hard limits. Each title is scored for each person and averaged, minus a penalty for disagreement, so polarizing picks drop. Variety rules keep it from being all one genre.
-4. **Voting.** Each person votes 👍 Yes / 😐 Meh / 👎 No (or 👀 Seen it) on all 15, privately.
-5. **Top 5.** Happiness score per title: 👍 +2, 😐 +0.5, 👎 −4, seen 0. Ties go to fewer 👎. Titles everyone said no to never appear. Each pick shows how everyone voted, and "Everyone's happy ✓" when nobody voted 👎.
-6. **Vote on 15 more** starts a fresh round with no repeats.
+4. **Voting.** Each person votes 👍 Yes / 😐 Meh / 👎 No on all 15, privately. "👀 I've seen it" is an optional tag on top of the vote (the vote then means "would I watch it again?").
+5. **One pick.** Happiness score per title: 👍 +2, 😐 +0.5, 👎 −4. Ties go to fewer 👎, then to titles fewer people have seen. Titles everyone said no to never appear. The group sees the single best option with everyone's votes (and who's seen it); **Next** shows the next-best, **Back** goes back.
+6. After the last option, **Vote on 15 more** starts a fresh round with no repeats.
 
 The group session is saved in the browser (`wtw.group`), so refreshing mid-vote picks up where you left off. It's one plain object (people, answers, votes, candidates), so a future "join from your own phone" version only needs to sync it through a small online database. Group votes never change your solo thumbs history.
 
